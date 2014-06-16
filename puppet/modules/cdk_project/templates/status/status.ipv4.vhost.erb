@@ -1,0 +1,45 @@
+# ************************************
+# Managed by Puppet
+# ************************************
+#NameVirtualHost <%= vhost_name %>:<%= port %>
+Listen 8080
+<VirtualHost _default_:8080>
+  ServerName <%= scope.lookupvar("cdk_project::status::vhost_name") %>
+<% if serveraliases.is_a? Array -%>
+<% serveraliases.each do |name| -%><%= " ServerAlias #{name}\n" %><% end -%>
+<% elsif serveraliases != '' -%>
+<%= " ServerAlias #{serveraliases}" %>
+<% end -%>
+  DocumentRoot <%= docroot %>
+
+  RewriteEngine on
+
+  RewriteRule ^/rechecks$ /rechecks/ [R]
+  RewriteRule ^/rechecks/$ <%= scope.lookupvar("cdk_project::status::zuul_url") %>/rechecks.html [P]
+  <Location /rechecks/>
+    Order allow,deny
+    Allow from all
+  </Location>
+
+  RewriteRule ^/bugday$ /bugday/ [R]
+  RewriteRule ^/bugday/(.*)$ http://old-wiki.openstack.org/bugday/$1 [P]
+  <Location /bugday/>
+    Order allow,deny
+    Allow from all
+  </Location>
+
+  Alias /reviews /srv/static/reviewday
+  Alias /release /srv/static/release
+
+  <Directory <%= docroot %>>
+    Options <%= options %>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+  </Directory>
+
+  ErrorLog /var/log/apache2/<%= name %>_error.log
+  LogLevel warn
+  CustomLog /var/log/apache2/<%= name %>_access.log combined
+  ServerSignature Off
+</VirtualHost>

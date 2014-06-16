@@ -1,0 +1,20 @@
+- homepage: http://<%= domain %>
+  acl-dir: /home/gerrit2/acls
+  local-git-dir: <%= local_git_dir %>
+  gerrit-host: <%= fqdn %>
+  gerrit-user: <%= script_user %>
+  gerrit-committer: gerrit2 <gerrit2@localhost.com>
+  gerrit-key: <%= script_key_file %>
+  has-wiki: False
+  has-issues: False
+  has-pull-requests: False
+  has-downloads: False
+  has-github: False
+---
+- project: forj-config
+  description: Forj Configuration Project
+- project: sample/hello-world
+  description: Sample hello-world project
+- project: tutorials
+  description: python sample
+  upstream: https://github.com/ingenierouga/tutorials.git

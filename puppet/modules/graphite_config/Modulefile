@@ -1,0 +1,9 @@
+name 'forj-graphite_config'
+version '0.1.0'
+author 'Copyright 2013 OpenStack Foundation, (c) Copyright 2014 Hewlett-Packard Development Company, L.P.'
+license 'http://www.apache.org/legal/resolved.html#required-third-party-notices'
+source 'https://review.forj.io'
+project_page 'https://forj.io'
+summary 'Graphite is real-time graphing system.'
+description ' It is compromised of two components – a webapp frontend and a backend storage application. It allows external application to feed monitoring data into it and then uses it’s “carbon” backend agent to process the data and store it in a specialized graphite database (eg: whisper). 
+https://review.openstack.org/openstack-infra/config/modules/graphite'

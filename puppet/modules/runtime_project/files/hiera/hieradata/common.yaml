@@ -1,0 +1,172 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# this file contains class, configuration, packages that will be 
+# installed on all servers regardless of platform.
+---
+classes:
+  - packages::manage
+  - puppet
+  - gardener
+  - cdk_project::pip
+  - salt
+  - maestro::backup::configure_box
+  - jimador::manage
+  - maestro::params
+
+# swap location and default config
+sysadmin_config::swap::swap_file: '/mnt/swapfile'
+sysadmin_config::swap::block_size: '1M'
+
+# nodejs wrap global defaults
+nodejs_wrap::node_env: "%{::maestro::params::node_env}"
+
+# applications covered by this blueprint
+# this section provides a way for jimador to discover new applications
+# and add them to maestro UI via config.json
+jimador::discover:
+  gerrit:
+    tool_email: "%{::gerrit_email}"
+    tool_config: "%{::gerrit_url_config}"
+    tool_url: "%{::gerrit_url}"
+    category: 'dev'
+    dname: 'Gerrit'
+    desc: 'Code review'
+    icon: true
+    visible: true
+  pastebin:
+    tool_email: ''
+    tool_config: "%{::pastebin_url_config}"
+    tool_url: "%{::pastebin_url}"
+    category: 'dev'
+    dname: 'Pastebin'
+    desc: 'Store, share and compare text snippets'
+    icon: true
+    visible: true
+  jenkins:
+    tool_email: ''
+    tool_config: "%{::jenkins_url_config}"
+    tool_url: "%{::jenkins_url}"
+    category: 'dev'
+    dname: 'Jenkins'
+    desc: 'Continuous integration'
+    icon: true
+    visible: true
+  zuul:
+    tool_email: ''
+    tool_config: "%{::zuul_url_config}"
+    tool_url: "%{::zuul_url}"
+    category: 'dev'
+    dname: 'Zuul'
+    desc: 'Pipeline oriented project gating'
+    icon: true
+    visible: false
+  puppet:
+    tool_email: ''
+    tool_config: "%{::puppet_url_config}"
+    tool_url: "%{::puppet_url}"
+    category: 'dev'
+    dname: 'Puppet Dashboard'
+    desc: 'View managed nodes'
+    icon: true
+    visible: true
+  graphite:
+    tool_email: ''
+    tool_config: "%{::graphite_config}"
+    tool_url: "%{::graphite_url}"
+    category: 'dev'
+    dname: 'Graphite'
+    desc: 'View graphs'
+    icon: true
+    visible: true
+  status:
+    tool_email: ''
+    tool_config: "%{status_url_config}"
+    tool_url: "%{status_url}"
+    category: 'dev'
+    dname: 'Zuul Status'
+    desc: 'Provide zuul gate status and more.'
+    icon: true
+    visible: true
+# use pind version for jeepyb
+jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'
+
+# configure backups for all nodes
+# Use defaults from the generic class.
+# maestro::backup::backup_user: 'forj-bck'
+#maestro::backup::backup_home: '/home'
+#maestro::backup::backup_fullpath:        '/mnt/backups'
+#maestro::backup::box_backup_path:        '/usr/lib/forj'
+#maestro::backup::box_backup_etc_path:    '/etc/forj'
+#maestro::backup::box_backup_user: 'root'
+maestro::backup::box_backup_server: "%{::eroip}"
+
+# setup parameters for puppet class
+puppet::reports: 'http'
+puppet::reporturl: "http://%{::erosite}.%{::erodomain}:3000/reports/upload"
+puppet::manifestdir: "/opt/config/$environment/puppet/manifests"
+puppet::modulepath: "/opt/config/$environment/puppet/modules:/opt/config/$environment/git/redstone/puppet/modules:/opt/config/$environment/git/maestro/puppet/modules:/opt/config/$environment/git/config/modules:/etc/puppet/modules"
+puppet::puppetmaster: "%{::erosite}.%{::erodomain}"
+puppet::puppetmaster::certname: "%{::erosite}.%{::erodomain}"
+
+# nexus server cofiguration
+nexus::artifact::nexus_server: 'http://nexus.cdkdev.org:8080/nexus'
+
+packages::install:
+  - 'chkconfig'
+  - 'nano'
+  - 'curl'
+  - 'unzip'
+  - 'screen'
+  - 'elinks'
+  - 'subversion'
+  - 'autoconf'
+  - 'libtool'
+  - 'zip'
+  - 'bzip2'
+  - 'wget'
+  - 'nmap'
+  - 'mc'
+  - 'lynx'
+  - 'logwatch'
+  - 'traceroute'
+  - 'bc'
+  - 'xfsprogs'
+  - 'xfsdump'
+  - 'lftp'
+  - 'openssl'
+  - 'sed'
+  - 'perl'
+  - 'gawk'
+  - 'lvm2'
+  - 'numactl'
+  - 'dos2unix'
+
+packages::versioned:
+  deep_merge:
+    ensure: 'latest'
+    provider: 'gem'
+
+packages::latest:
+  - 'puppet'
+  - 'hiera'
+  - 'graphviz'
+
+# when using postfix
+# avoid exploits to only be used locally, requires ssh to use
+postfix::server::mynetworks: '127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128'
+postfix::server::recipient_delimiter: '+'
+postfix::server::inet_interfaces: '127.0.0.1'
+
+salt::salt_master: "%{::erosite}.%{::erodomain}"

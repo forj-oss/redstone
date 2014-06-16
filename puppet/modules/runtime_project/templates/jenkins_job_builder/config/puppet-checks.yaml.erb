@@ -1,0 +1,16 @@
+- job-template:
+   name: '{name}-puppet-checks'
+   disabled: false
+
+   scm:
+    - git:
+       url: 'ssh://<%= scope.lookupvar("::cdk_project::jenkins::gerrit_user") %>@<%= scope.lookupvar("::cdk_project::jenkins::gerrit_server") %>:<%= scope.lookupvar("::cdk_project::jenkins::gerrit_port") %>/{git_project}'
+       branches:
+        - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+   builders:
+   - puppet-lint-multi:
+   - puppet-syntax:
+

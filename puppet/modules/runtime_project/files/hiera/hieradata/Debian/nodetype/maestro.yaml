@@ -1,0 +1,107 @@
+#
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
+# generated from the facter value for fqdn and instance id calculation
+# performs installation of maestro ui and rest services
+# designed to work with puppetmaster subnodetype
+#
+---
+classes:
+  - maestro::node_vhost_lookup
+  - maestro
+  - runtime_project::hiera_setup
+  - runtime_project::install
+  - jimador::manage
+
+# configure site keys
+jimador::site:
+  maestro_url: "http://%{::maestro::node_vhost_lookup::vname}"
+  shortname: "RedStone"
+# setup documentation links for maestro, we only need to do this on maestro node
+jimador::documentation:
+  - dname: 'OpenStack Project Infrastructure'
+    category: 'community'
+    url: 'http://ci.openstack.org/'
+  - dname: 'Tutorial'
+    category: 'tutorial'
+    url: '../home/tutorial'
+  - dname: 'OpenStack forj @Forj'
+    category: 'tutorial'
+    url: 'http://docs.forj.io/en/latest/user/kits/openstack.html'
+  - dname: 'Review Subsystem (git & gerrit)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/gerrit.html'
+  - dname: 'CI Subsystem (jenkins)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/jenkins.html'
+  - dname: 'CI Subsystem (zuul)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/zuul.html'
+  - dname: 'Util Subsystem (paste/logedit)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/paste.html'
+  - dname: 'FAQ Site'
+    category: 'faq'
+    url: 'http://docs.forj.io/en/latest/dev/faq.html'
+# This parameter is used in order to hide an application from the UI. Note: you also need to set to false the 'visible' property from the common.yaml.
+jimador::default_tools_filter:
+  - 'zuul'
+
+nodejs_wrap::manage_repo: true
+
+maestro::nodes:
+  - 'review'
+  - 'util'
+  - 'ci'
+maestro::dns::global::default_contact: 'admin@%{::erodomain}'
+maestro::dns:
+  maestro:
+    hostname: 'maestro'
+    type: 'A'
+    node_search: '/maestro.%{::maestro_id}.*/'
+  review:
+    hostname: 'review'
+    type: 'A'
+    node_search: 'review.%{::maestro_id}'
+  ci:
+    hostname: 'ci'
+    type: 'A'
+    node_search: 'ci.%{::maestro_id}'
+  util:
+    hostname: 'util'
+    type: 'A'
+    node_search: 'util.%{::maestro_id}'
+
+maestro::ssh_user_keys:
+  - 'jenkins'
+  - 'forjio'
+
+maestro::instance_domain: '%{::erodomain}'
+maestro::image_name: 'proto2b'
+maestro::flavor_name: 'standard.medium'
+maestro::key_name: 'nova'
+maestro::network_name: '%{::network_name}'
+maestro::security_groups: '%{::security_groups}'
+
+# maestro ui /app configuration
+maestro::app::setup::revision: '%{::gitbranch}'
+maestro::ui::setup::revision: '%{::gitbranch}'
+
+salt::salt_reactor:
+  - 'puppet_apply_maestro'
+  - 'puppet_apply_review'
+  - 'puppet_apply_util'
+  - 'puppet_apply_ci'

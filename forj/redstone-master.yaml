@@ -1,0 +1,120 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+# redstone blueprint - Version 0.01
+#
+# It describes what development tools, flows and services are implemented to start developing at Openstack.
+#
+# This is a prototype version
+#
+# All blueprint files will be located in /usr/lib/maestro/blueprints
+# This file will need to be installed as openstack-master.yaml under 'blueprints' directory.
+# By convention, we will name it <BluePrintName>-master.yaml to make distinction with the layout.
+# 
+
+blueprint:
+  description: Develop like the OpenStack project with RedStone
+  locations:
+    modules: 
+      repo: ssh://review.en:29478/forj-oss/openstack.git
+  define:
+    kit:
+      objects:
+        - projects:
+          type: list
+          data:
+           - name: project
+             type: string
+          actions:
+           - create_project:
+             title: Create
+             icon: 
+               file: prj-add.png
+               content : (--- base64 encoded ---)
+             command: /usr/lib/maestro/bin/kit-project.sh --create ${project}
+           - delete_project:
+             title: Delete project
+             icon:
+               file: prj-del.png
+               content : (--- base64 encoded ---)
+             command: /usr/lib/maestro/bin/kit-project.sh --delete ${project}
+    modules:
+     - status:
+       type: internal
+       options:
+        - sysadmins:
+          type: 'string'
+          value: 'ask'
+          default: 'admin'
+          ask-desc: 'Please, enter an administrator account name to use'
+          ask-title: 'Admin account: '
+        - vhost_name: 
+          type: 'string'
+          value: '%{vhost}'
+        - zuul_url:
+          type: 'string'
+          value: "http://%{ip}/"
+        - graphite_url:
+          type: 'string'
+          value: "http://%{ip}:8081"
+        - static_url:
+          type: 'string'
+          value: "http://%{ip}:8080"
+        - maestro_url:
+          type: 'string'
+          value: "http://%{maestro-ip}"
+     - graphite:
+       type: application
+       options:
+        - vhost_name: 
+          type: 'string'
+          value: '%{vhost}'
+        - sysadmins: 
+          type: 'string'
+          value: 'ask'
+          default: 'sysadmin'
+          ask-desc: 'Please, enter a system administrator account name for "graphite" to use.'
+          ask-title: 'Sysadmin account: '
+        - graphite_admin_user: 
+          type: 'string'
+          value: 'ask'
+          default: 'sysadmin'
+          ask-desc: 'Please, enter the default graphite administrator account name to use.'
+          ask-title: 'Admin account: '
+          default: 'admin'
+        - graphite_admin_email:
+          type: 'string'
+        - graphite_admin_password:
+          type: 'password'
+          value: 'ask'
+          ask-desc: 'Enter a password to use.'
+          # Default for ask-title defined by type 'password' is 'password:'
+        - statsd_hosts: 
+          type: array
+          value: [ 'http://%{ip}/' ]
+     - paste:
+       type: application
+       options:
+        - sysadmins:
+          type: string
+          value: 'ask'
+          default: 'sysadmin'
+          ask-desc: 'Please, enter a system administrator account name for "paste" to use.'
+          ask-title: 'Sysadmin account: '
+        - vhost_name: 
+          type: string
+          value: '%{vhost}'
+        - site_name:
+          type: string
+          value: 'cdkdev'

@@ -1,0 +1,5 @@
+- job:
+    name: puppet-apply-all-nodes
+
+    builders:
+      - puppet-apply-all-nodes:

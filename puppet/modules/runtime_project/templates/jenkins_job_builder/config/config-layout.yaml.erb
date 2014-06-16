@@ -1,0 +1,20 @@
+- job-template:
+    name: '{name}-config-layout'
+
+    scm:
+    - git:
+       url: 'ssh://<%= scope.lookupvar("::cdk_project::jenkins::gerrit_user") %>@<%= scope.lookupvar("::cdk_project::jenkins::gerrit_server") %>:<%= scope.lookupvar("::cdk_project::jenkins::gerrit_port") %>/{git_project}'
+       branches:
+         - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+    builders:
+    - shell: |
+          #!/bin/bash -xe
+          mkdir -p $WORKSPACE/.test
+          cd $WORKSPACE/.test
+          [ -d zuul ] || git clone https://review.openstack.org/p/openstack-infra/zuul --depth 1
+          cp /etc/zuul/openstack_functions.py $WORKSPACE/modules/runtime_project/files/zuul/config/production/openstack_functions.py
+          cd zuul
+          tox -e venv -- zuul-server -c etc/zuul.conf-sample -l $WORKSPACE/modules/runtime_project/files/zuul/config/production/layout.yaml -t

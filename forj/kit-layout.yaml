@@ -1,0 +1,44 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+# layout - Version 0.01
+#
+
+# This file has been created to be focused for the first generator script to manage openstack as a Blueprint implementation.
+#
+# On Maestro, this file will need to be located under /usr/lib/maestro/layouts.
+# By convention, the layout will be named as <bluePrintName>-layout.yaml to make the distinction against the master one.
+
+# Variables:
+# There is at least 3 kind of variables. All of these variables are defined from the blueprint. 
+# In the deploy file, we will implement 2 kind of files:
+# - hiera variables. We will have a file per servers.
+#   runtime_project/files/hiera/hieradata/Debian/nodetype/*.yaml
+# - site.pp
+#   site.pp will need to be replaced by a collection of files. See http://docs.puppetlabs.com/puppet/latest/reference/dirs_manifest.html
+#   Currently, I have updated site.pp to reflect a simplified util section. But this should be stored under a <server>.pp
+
+blueprint-deploy:
+   layout: redstone
+   blueprint : redstone # This refer to another file which describes the blueprint itself. In this case, I named this file redstone-master.yaml.
+   servers:
+     - util: 
+       name: util
+       applications:
+        - status:
+        - graphite:
+        - paste:
+          class_params:
+            - site_name: 'forj.io'
+

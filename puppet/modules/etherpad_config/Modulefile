@@ -1,0 +1,10 @@
+name 'forj-etherpad_config'
+version '0.1.0'
+author 'Copyright 2013 OpenStack Foundation, (c) Copyright 2014 Hewlett-Packard Development Company, L.P.'
+license 'http://www.apache.org/legal/resolved.html#required-third-party-notices'
+source 'https://review.forj.io'
+project_page 'https://forj.io'
+summary 'etherpad deployment'
+description 'Etherpad is a highly customizable Open Source online editor providing collaborative editing in really real-time.
+https://review.openstack.org/openstack-infra/config/modules/etherpad_lite
+'

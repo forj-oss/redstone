@@ -1,0 +1,81 @@
+# defaults for jenkins continuous integration server
+
+# Copyright 2013 OpenStack Foundation.
+# Copyright 2013 Hewlett-Packard Development Company, L.P.
+# Copyright 2013 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+
+# pulled in from the init script; makes things easier.
+NAME=jenkins
+
+# location of java
+JAVA=/usr/bin/java
+
+# arguments to pass to java
+#JAVA_ARGS="-Xmx256m"
+#JAVA_ARGS="-Djava.net.preferIPv4Stack=true" # make jenkins listen on IPv4 address
+# Disable compression as zip deflation threads eat CPU time.
+# https://issues.jenkins-ci.org/browse/JENKINS-14362
+#JAVA_ARGS="-Xloggc:/var/log/jenkins/gc.log -XX:+PrintGCDetails -Xmx12g -Dorg.kohsuke.stapler.compression.CompressionFilter.disabled=true -Djava.util.logging.config.file=/var/lib/jenkins/logger.conf"
+
+PIDFILE=/var/run/jenkins/jenkins.pid
+
+# user id to be invoked as (otherwise will run as root; not wise!)
+JENKINS_USER=jenkins
+
+# location of the jenkins war file
+JENKINS_WAR=/usr/share/jenkins/jenkins.war
+
+# jenkins home location
+JENKINS_HOME=/var/lib/jenkins
+
+# set this to false if you don't want Hudson to run by itself
+# in this set up, you are expected to provide a servlet container
+# to host jenkins.
+RUN_STANDALONE=true
+
+# log location.  this may be a syslog facility.priority
+JENKINS_LOG=/var/log/jenkins/$NAME.log
+#HUDSON_LOG=daemon.info
+
+# OS LIMITS SETUP
+#   comment this out to observe /etc/security/limits.conf
+#   this is on by default because http://github.com/jenkinsci/jenkins/commit/2fb288474e980d0e7ff9c4a3b768874835a3e92e
+#   reported that Ubuntu's PAM configuration doesn't include pam_limits.so, and as a result the # of file
+#   descriptors are forced to 1024 regardless of /etc/security/limits.conf
+MAXOPENFILES=8192
+
+# port for HTTP connector (default 8080; disable with -1)
+HTTP_PORT=8080
+
+#HTTPS_PORT=443
+
+# port for AJP connector (disabled by default)
+AJP_PORT=-1
+
+# servlet context, important if you want to use apache proxying
+PREFIX=/jenkins
+
+# arguments to pass to jenkins.
+# --javahome=$JAVA_HOME
+# --httpPort=$HTTP_PORT (default 8080; disable with -1)
+# --httpsPort=$HTTP_PORT
+# --ajp13Port=$AJP_PORT
+# --argumentsRealm.passwd.$ADMIN_USER=[password]
+# --argumentsRealm.$ADMIN_USER=admin
+# --webroot=~/.jenkins/war
+# --prefix=$PREFIX
+
+JENKINS_ARGS="--webroot=/var/cache/jenkins/war --httpPort=$HTTP_PORT --ajp13Port=$AJP_PORT"

@@ -1,0 +1,21 @@
+- job-template:
+    name: '{name}-publish-to-stackato'
+
+    scm:
+    - git:
+       url: 'ssh://<%= scope.lookupvar("::cdk_project::jenkins::gerrit_user") %>@<%= scope.lookupvar("::cdk_project::jenkins::gerrit_server") %>:<%= scope.lookupvar("::cdk_project::jenkins::gerrit_port") %>/{git_project}'
+       branches:
+         - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+    builders:
+    - shell: |
+           #!/bin/bash -xe
+           /usr/local/bin/stackato target https://api.shared.apaas.hpcloudsvc.com
+           /usr/local/bin/stackato login olivier.jacques@hp.com --passwd Moustach3
+           if [ $(/usr/local/bin/stackato list | grep -c {name}) -eq 0 ]; then
+              /usr/local/bin/stackato push -n
+           else
+              /usr/local/bin/stackato update -n
+           fi

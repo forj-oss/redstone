@@ -1,0 +1,5 @@
+puppet_run:
+  cmd.cmd.run:
+    - tgt: 'maestro*'
+    - arg:
+      - sudo -i bash -c "export FACTERLIB=/var/lib/puppet/lib/facter; /usr/bin/puppet agent --onetime --no-daemonize --logdest /var/log/puppet/puppetd.log"

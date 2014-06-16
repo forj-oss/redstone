@@ -1,0 +1,9 @@
+name 'forj-gerrit_config'
+version '0.1.0'
+author 'Copyright 2013 OpenStack Foundation, (c) Copyright 2014 Hewlett-Packard Development Company, L.P.'
+license 'http://www.apache.org/legal/resolved.html#required-third-party-notices'
+source 'https://review.forj.io'
+project_page 'https://forj.io'
+summary 'gerrit server deployment'
+description 'Gerrit server deployment, includes additional classes for full server setup without any manual steps.  Including bootstrapping with first use.
+https://review.openstack.org/openstack-infra/config/modules/gerrit'
