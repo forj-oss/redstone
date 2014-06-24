@@ -288,7 +288,7 @@ class cdk_project::gerrit (
 
     if ($github_username != '')
     {
-      class { 'github':
+      class { 'github_config':
         username         => $github_username,
         project_username => $github_project_username,
         project_password => $github_project_password,
