@@ -15,5 +15,10 @@
 #   limitations under the License.
 #
 #
+# Required for puppet.conf to be updated.
+# TODO: To move to bp.py
+class { 'puppet': } ->
+# Required for publishing redstone servers layouts to layout in hiera.
+# TODO: To be replaced by transformation.py
 class { 'runtime_project::hiera_setup': }
 
