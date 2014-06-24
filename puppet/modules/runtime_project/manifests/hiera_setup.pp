@@ -35,7 +35,7 @@ class runtime_project::hiera_setup (
   {
     file { '/etc/puppet/hieradata/Debian/layouts':
       ensure  => 'directory',
-      source  => 'puppet:///modules/runtime_project/hiera/hieradata',
+      source  => 'puppet:///modules/runtime_project/hiera/layouts',
       recurse => true,
       owner   => 'root',
       group   =>'root',
