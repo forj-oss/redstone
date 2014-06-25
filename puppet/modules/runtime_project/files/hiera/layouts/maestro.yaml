@@ -82,10 +82,10 @@ maestro::app::setup::revision: '%{::gitbranch}'
 maestro::ui::setup::revision: '%{::gitbranch}'
 
 salt::salt_reactor:
-- 'puppet_apply_maestro'
-- 'puppet_apply_review'
-- 'puppet_apply_util'
-- 'puppet_apply_ci'
+  - 'maestro'
+  - 'review'
+  - 'util'
+  - 'ci'
 
 puppet::reports::graphite::status: 'enabled'
 puppet::reports::graphite::graphite_port: '2003'
