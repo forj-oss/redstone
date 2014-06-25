@@ -21,6 +21,7 @@
 # PYTHON comment: It uses name and list of application (attaching a class name for each application, determined from the openstack-master.yaml)
 classes:
   - maestro::node_vhost_lookup
+  - maestro::backup::configure_box
   - maestro::backup::set_app_backup
   - cdk_project::pip
   - cdk_project::gerrit

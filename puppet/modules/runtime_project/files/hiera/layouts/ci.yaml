@@ -24,6 +24,7 @@ classes:
   - maestro::node_vhost_lookup
   - cdk_project::jenkins
   - cdk_project::zuul
+  - maestro::backup::configure_box
   - maestro::backup::set_app_backup
   - maestro::app::tool_status
 
