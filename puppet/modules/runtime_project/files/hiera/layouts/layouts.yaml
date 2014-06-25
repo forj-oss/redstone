@@ -17,8 +17,8 @@
 # designed to work with puppetmaster subnodetype
 #
 
-classes:
-  - jimador::discover
+#classes:
+#  - jimador::discover
 
 jimador::discover:
   gerrit:
