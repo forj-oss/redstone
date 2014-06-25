@@ -71,9 +71,9 @@ jimador::documentation:
     url: 'http://docs.forj.io/en/latest/dev/faq.html'
 
 maestro::instance_domain: '%{::erodomain}'
-maestro::image_name: 'proto2b'
-maestro::flavor_name: 'standard.medium'
-maestro::key_name: 'nova'
+maestro::image_name: '%{::image_name}'
+maestro::flavor_name: '%{::flavor_name}'
+maestro::key_name: '%{::key_name}'
 maestro::network_name: '%{::network_name}'
 maestro::security_groups: '%{::security_groups}'
 
