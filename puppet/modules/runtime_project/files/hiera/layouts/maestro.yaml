@@ -87,3 +87,5 @@ salt::salt_reactor:
 - 'puppet_apply_util'
 - 'puppet_apply_ci'
 
+puppet::reports::graphite::status: 'enabled'
+puppet::reports::graphite::graphite_port: '2003'
