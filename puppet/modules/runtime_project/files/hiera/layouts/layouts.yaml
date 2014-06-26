@@ -76,3 +76,10 @@ jimador::discover:
     icon: true
     visible: true
 
+# setup parameters for puppet class on all nodes, superseeds maestro.yaml settings.
+puppet::reports: 'http'
+puppet::reporturl: "http://%{::erosite}.%{::erodomain}:3000/reports/upload"
+puppet::manifestdir: "/opt/config/$environment/git/maestro/puppet/manifests"
+puppet::modulepath: "%{::bp_modulepath}/opt/config/$environment/git/maestro/puppet/modules:%{::extra_modulepath}/opt/config/$environment/git/config/modules:/etc/puppet/modules"
+puppet::puppetmaster: "%{::erosite}.%{::erodomain}"
+puppet::puppetmaster::certname: "%{::erosite}.%{::erodomain}"
