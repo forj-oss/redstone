@@ -77,3 +77,5 @@ maestro::backup::configure_box::uses_db:     ''
 maestro::backup::box_db_user:                ''
 maestro::backup::box_db_password:            ''
 
+# use pind version for jeepyb
+jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'

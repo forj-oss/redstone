@@ -21,10 +21,23 @@ classes:
   - runtime_project::hiera_setup
   - runtime_project::install
 
+# create the folling nodes
 maestro::nodes:
   - 'review'
   - 'util'
   - 'ci'
+
+# configure the following ssh keys
+maestro::ssh_user_keys:
+  - 'jenkins'
+  - 'forjio'
+
+# define the site information for this blueprint
+# shortname is a descriptive name, TODO: source this from the blueprint data.
+jimador::site:
+  maestro_url: "http://%{::maestro::node_vhost_lookup::vname}"
+  shortname: "RedStone"
+
 maestro::dns::global::default_contact: 'admin@%{::erodomain}'
 maestro::dns:
   maestro:
@@ -69,6 +82,10 @@ jimador::documentation:
   - dname: 'FAQ Site'
     category: 'faq'
     url: 'http://docs.forj.io/en/latest/dev/faq.html'
+
+# This parameter is used in order to hide an application from the UI. Note: you also need to set to false the 'visible' property from the common.yaml.
+jimador::default_tools_filter:
+  - 'zuul'
 
 maestro::instance_domain: '%{::erodomain}'
 maestro::image_name: '%{::image_name}'
