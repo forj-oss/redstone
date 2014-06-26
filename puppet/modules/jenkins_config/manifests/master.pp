@@ -95,6 +95,9 @@ class jenkins_config::master(
 #  a2mod { 'proxy_http':
 #    ensure => present,
 #  }
+  a2mod { 'headers':
+    ensure => present,
+  }
 
   if $ssl_cert_file_contents != '' {
     file { $ssl_cert_file:
