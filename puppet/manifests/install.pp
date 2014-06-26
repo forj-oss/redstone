@@ -17,8 +17,17 @@
 #
 # Required for puppet.conf to be updated.
 # TODO: To move to bp.py
-class { 'puppet': } ->
+class { 'puppet': }
+# this is needed to produce maestro behavior on setup to show all the specific tools for this forge.
+# otherwise we can't see what is going to be setup after bp.py
+file { "/opt/config/${::settings::environment}/config.json":
+    ensure  => absent,
+    mode    => '0644',
+    require => Class['puppet'],
+}
 # Required for publishing redstone servers layouts to layout in hiera.
 # TODO: To be replaced by transformation.py
-class { 'runtime_project::hiera_setup': }
+class { 'runtime_project::hiera_setup':
+    require => File["/opt/config/${::settings::environment}/config.json"],
+}
 
