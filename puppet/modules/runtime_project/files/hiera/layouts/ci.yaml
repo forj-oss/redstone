@@ -27,6 +27,7 @@ classes:
   - maestro::backup::configure_box
   - maestro::backup::set_app_backup
   - maestro::app::tool_status
+  - sysadmin_config::manage_servers
 
 #Jenkins tool
 cdk_project::jenkins::vhost_name:               "%{::maestro::node_vhost_lookup::vname}"
@@ -79,3 +80,13 @@ maestro::backup::box_db_password:            ''
 
 # use pind version for jeepyb
 jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'
+
+# setup server (iptables, rsyslog, tcpdump, ssh)
+sysadmin_config::manage_servers::iptables_public_tcp_ports:
+  - 80
+  - 443
+  - 4730
+  - 8080
+  - 8139
+  - 8140
+  - 29418

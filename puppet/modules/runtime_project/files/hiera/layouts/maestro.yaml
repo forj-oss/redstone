@@ -19,6 +19,7 @@
 
 classes:
   - runtime_project::install
+  - sysadmin_config::manage_servers
 
 # configure maestro to run our hiera_setup in runtime_project module
 hiera::data_class: 'runtime_project::hiera_setup'
@@ -108,3 +109,15 @@ salt::salt_reactor:
 
 puppet::reports::graphite::status: 'enabled'
 puppet::reports::graphite::graphite_port: '2003'
+
+# setup server (iptables, rsyslog, tcpdump, ssh)
+sysadmin_config::manage_servers::iptables_public_tcp_ports:
+  - 80
+  - 443
+  - 3000
+  - 4505
+  - 4506
+  - 8080
+  - 8139
+  - 8140
+

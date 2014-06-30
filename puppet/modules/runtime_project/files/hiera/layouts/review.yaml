@@ -26,6 +26,7 @@ classes:
   - cdk_project::pip
   - cdk_project::gerrit
   - maestro::app::tool_status
+  - sysadmin_config::manage_servers
 
 # Gerrit tool
 cdk_project::gerrit::vhost_name:                       "%{::maestro::node_vhost_lookup::vname}" #$gerrit_vhost
@@ -107,3 +108,12 @@ maestro::backup::set_app_backup::bkp_name:   'gerrit-bck'
 maestro::backup::configure_box::uses_db:     'yes'
 maestro::backup::box_db_user:                'backup_usr'
 maestro::backup::box_db_password:            'changeme'
+
+# setup server (iptables, rsyslog, tcpdump, ssh)
+sysadmin_config::manage_servers::iptables_public_tcp_ports:
+  - 80
+  - 443
+  - 8080
+  - 8139
+  - 8140
+  - 29418
