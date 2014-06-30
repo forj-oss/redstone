@@ -18,8 +18,10 @@
 #
 
 classes:
-  - runtime_project::hiera_setup
   - runtime_project::install
+
+# configure maestro to run our hiera_setup in runtime_project module
+hiera::data_class: 'runtime_project::hiera_setup'
 
 # create the folling nodes
 maestro::nodes:

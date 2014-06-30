@@ -30,7 +30,7 @@ class runtime_project::hiera_setup (
 #      replace => true,
 #    }
 #  }
-
+  include hiera::data
   if (! defined(File['/etc/puppet/hieradata/Debian/layouts']))
   {
     file { '/etc/puppet/hieradata/Debian/layouts':

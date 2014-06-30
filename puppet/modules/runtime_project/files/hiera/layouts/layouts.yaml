@@ -29,6 +29,15 @@ nexus::artifact::nexus_server: 'http://nexus.cdkdev.org:8080/nexus'
 
 # these applications are discovered by jimador::manage class called from commona.yaml
 jimador::discover:
+  puppet:
+    tool_email: ''
+    tool_config: "%{::puppet_url_config}"
+    tool_url: "%{::puppet_url}"
+    category: 'dev'
+    dname: 'Puppet Dashboard'
+    desc: 'View managed nodes'
+    icon: true
+    visible: true
   gerrit:
     tool_email: "%{::gerrit_email}"
     tool_config: "%{::gerrit_url_config}"
