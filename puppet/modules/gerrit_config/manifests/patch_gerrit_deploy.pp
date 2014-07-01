@@ -44,66 +44,6 @@ class gerrit_config::patch_gerrit_deploy
           require => File[$gerrit_config_file],
     }
 
-  $git_cfg_add   = "${git_config} --add"
-  $git_cfg_unset = "${git_config} --unset"
-  $git_cfg_rmsec = "${git_config} --remove-section"
-  $git_cfg_get   = "${git_config} --get"
-  $test_proxy    = "${git_cfg_get} http.proxy"
-
-  if ( $::http_proxy )
-  {
-    # commands to use for add and remove
-    # add
-    # git config -f ${gerrit_config_file} --add http.proxy "foo"
-    # remove
-    # git config -f ${gerrit_config_file} --unset http.proxy
-    # git config -f /home/gerrit2/review_site/etc/gerrit.config -l \
-    #                            |grep "http\."
-    # git config -f ${gerrit_config_file} \
-    #             --remove-section http  > /dev/null 2<&1
-    # only add if missing, do not edit with git config
-    exec { 'add http.proxy in case set already':
-            path    => ['/bin', '/usr/bin'],
-            command => "${git_cfg_add} http.proxy \"${::http_proxy}\"",
-            user    => 'gerrit2',
-            onlyif  => "test \"\$(${git_cfg_get} http.proxy)\" == \"\"",
-            require => File[$gerrit_config_file],
-    }
-
-    # proxy is not null, it exist!
-    exec { 'edit http.proxy if there is an update':
-            path    => ['/bin', '/usr/bin'],
-            command => "sed -e \'s|[^\s+]proxy\s*=.*|        proxy = foo|g\' ${gerrit_config_file} --in-place",
-            user    => 'gerrit2',
-            onlyif  => [
-                        "test \"\$(${test_proxy})\" != \"\"",
-                        "test \"\$(${test_proxy})\" != \"${::http_proxy}\""
-                        ],
-            require => File[$gerrit_config_file],
-    }
-  }
-  else
-  {
-    # unset any http_proxy configuration
-    exec { 'unset http.proxy if configured':
-            path    => ['/bin', '/usr/bin'],
-            command => "${git_cfg_unset} http.proxy",
-            user    => 'gerrit2',
-            onlyif  => "test \"\$(${test_proxy})\" != \"\"",
-            require => File[$gerrit_config_file],
-    }
-    # clean up and remove the http section if there is no values left
-    $test_http = "test \"\$(${git_config} -l|grep \"http\\.\")\" == \"\""
-    exec { 'clean http section':
-            path    => ['/bin', '/usr/bin'],
-            command => "${git_cfg_rmsec} http",
-            user    => 'gerrit2',
-            onlyif  => ["grep \"\\[http\\]\" ${gerrit_config_file}",
-                        $test_http],
-            require => File[$gerrit_config_file],
-    }
-  }
-
   # fix the /etc/init.d/gerrit to do a status along with check so we can use
   # the service class
   $status_str = 'check|status'
