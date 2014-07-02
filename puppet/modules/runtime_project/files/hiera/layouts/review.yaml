@@ -28,6 +28,9 @@ classes:
   - maestro::app::tool_status
   - sysadmin_config::manage_servers
 
+# use pind version for jeepyb on all servers
+jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'
+
 # Gerrit tool
 cdk_project::gerrit::vhost_name:                       "%{::maestro::node_vhost_lookup::vname}" #$gerrit_vhost
 cdk_project::gerrit::ip_vhost_name:                    "%{::maestro::node_vhost_lookup::vname}" #$gerrit_server

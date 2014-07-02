@@ -21,9 +21,6 @@
 sysadmin_config::swap::swap_file: '/mnt/swapfile'
 sysadmin_config::swap::block_size: '1M'
 
-# use pind version for jeepyb on all servers
-jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'
-
 # nodejs wrap global defaults
 nodejs_wrap::node_env: "%{::maestro::params::node_env}"
 
