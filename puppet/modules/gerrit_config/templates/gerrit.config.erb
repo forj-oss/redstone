@@ -87,9 +87,9 @@
 <% if httpd_maxthreads != "" -%>
 	maxThreads = <%= httpd_maxthreads %>
 <% end -%>
-<% if  scope.lookupvar('http_proxy') != "" -%>
+<% if  scope.lookupvar('http_proxy') != "" and scope.lookupvar('http_proxy') != "undefined" and scope.lookupvar('http_proxy') != :undefined-%>
 [http]
-  proxy = <%= scope.lookupvar('http_proxy') %>
+	proxy = <%= scope.lookupvar('http_proxy') %>
 <% end -%>
 [cache]
 	directory = cache
