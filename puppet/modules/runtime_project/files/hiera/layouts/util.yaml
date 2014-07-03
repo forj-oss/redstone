@@ -56,6 +56,6 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
   - 8081
   - 8125
 sysadmin_config::manage_servers::iptables_rules4: 
-  tool: "zuul_url" 
-  format_rule: "-m udp -p udp -s \\1 --dport 8125 -j ACCEPT"
+  tool: "zuul"
+  format_rule: "-m udp -p udp -s \1 --dport 8125 -j ACCEPT"
 sysadmin_config::manage_servers::sysadmins: ''
