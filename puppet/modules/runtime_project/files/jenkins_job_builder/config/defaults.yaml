@@ -5,13 +5,12 @@
 
       <p><b>Do not edit this job through the web</b></p>
 
-      <p>If you would like to make changes to this job, please see:
+      <p>If you would like to make changes to this job, please update the forj-config project on your gerrit server.
 
-        <a href="https://git.openstack.org/cgit/openstack-infra/config">
-          https://git.openstack.org/cgit/openstack-infra/config
-        </a>
-
-      In modules/openstack_project/files/jenkins_job_builder/config
+      In modules/runtime_project/files/jenkins_job_builder/config
+      </p>
+     <p>
+      More instructions can be found <a href="http://docs.forj.io/en/latest/user/kits/redstone.html#adding-a-new-jenkins-job-and-configure-zuul-for-a-given-project-in-gerrit">here</a>.
       </p>
     project-type: freestyle
     concurrent: true
