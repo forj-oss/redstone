@@ -50,9 +50,9 @@ cdk_project::jenkins::zmq_event_receivers:      ''
 cdk_project::jenkins::sysadmins:                ''
 cdk_project::jenkins::openidssourl:             'https://login.launchpad.net/+openid'
 cdk_project::jenkins::job_builder_configs:
-  - 'config-layout.yaml'
+  - 'zuul-layout.yaml'
   - 'fortify-scan.yaml'
-  - 'tutorials.yaml'
+  - 'flake8.yaml'
   - 'publish-to-stackato.yaml'
   - 'puppet-checks.yaml'
 

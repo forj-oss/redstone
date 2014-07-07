@@ -10,6 +10,6 @@
    git_project: forj-config
    branch: master
    jobs:
-    - '{name}-config-layout'
+    - '{name}-zuul-layout'
     - '{name}-puppet-checks'
     - 'puppet-apply-all-nodes'

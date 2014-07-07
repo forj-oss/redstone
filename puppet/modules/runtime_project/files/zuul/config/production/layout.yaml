@@ -134,10 +134,10 @@ projects:
       - tutorials-flake8
   - name: forj-config
     check:
-      - forj-config-config-layout
+      - forj-config-zuul-layout
       - forj-config-puppet-checks
     gate:
-      - forj-config-config-layout
+      - forj-config-zuul-layout
       - forj-config-puppet-checks
     post:
       - puppet-apply-all-nodes
