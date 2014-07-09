@@ -27,9 +27,10 @@
 #
 # Dependencies:
 # CLIs:
-# hp cloud paas: apaascli
-#   download: https://api.shared.apaas.hpcloudsvc.com/console/client/
+# hp cloud paas: hdp
+#   download: https://api.cluster.hdpinternals.com/console/index.html#client
 # activestate paas: stackato
+#    download: http://www.activestate.com/stackato/download_client
 # cloud foundry based paas: cf
 #   download: https://github.com/cloudfoundry/cli/blob/master/README.md#stable-release
 #   note: CF v2 endpoint
@@ -82,115 +83,161 @@ def is_supported?(supported_paas, paas_flavor)
         (PAAS_FLAVOR == :hp or PAAS_FLAVOR == :stackato or PAAS_FLAVOR == :cf)) ? true : false
 end
 
-
 # ..Initialization...
 # paas.yml file is required
 
 paas_info = load_paas_config
 PAAS_CMD = paas_info['paas_cli']
 PAAS_FLAVOR = paas_info['paas_flavor'].intern   # convert string from yml file to symbol, todo: is this cool?
+NOT_SUPPORTED = 'paas flavor not supported'
 #supported_paas = %w(hp , stackato)
 supported_paas = [:hp, :stackato, :cf]
 
 
+
 namespace :paas do
 
+   # intended to be used by other tasks to verify paas flavor
+   task :verify_flavor do
+   	begin
+   		unless is_supported?(supported_paas,PAAS_FLAVOR)
+   			abort('paas flavor not supported')
+   		end
+   	end
+   end
+   # examples: 
+   # 	rake paas:login  - uses values from paas.yaml
+   #    rake paas:login[user,pwd] - uses params
    desc 'aPaas login'
-   task :login do
-     if is_supported?(supported_paas,PAAS_FLAVOR)
-       case PAAS_FLAVOR
-         when :hp, :stackato
-            opts = "#{paas_info['paas_login_cmd']} --email #{paas_info['user']} --passwd '#{paas_info['pwd']}' "
-            shell_exec(PAAS_CMD, opts)
-         when :cf
-            opts = "#{paas_info['paas_login_cmd']} -a #{paas_info['target_url']}  --u #{paas_info['user']} --p '#{paas_info['pwd']}' "
-            shell_exec(PAAS_CMD, opts)
-       end
-     end
+   task :login, [:user, :pwd] => :verify_flavor do |t, args| 
+     begin
+	     if is_supported?(supported_paas,PAAS_FLAVOR)
+	       case PAAS_FLAVOR
+	         when :hp
+	            if (args.user.blank? || args.pwd.blank?)
+	         		opts = "#{paas_info['paas_login_cmd']} -n" 
+	         	else
+	         		opts = "#{paas_info['paas_login_cmd']} -n #{args.user} --passwd #{args.pwd} "
+	         	end
+	         when :stackato
+	         	if (args.user.blank? || args.pwd.blank?)
+	         		"#{paas_info['paas_login_cmd']}"
+	         	else
+	            	opts = "#{paas_info['paas_login_cmd']} --email #{paas_info['user']} --passwd '#{paas_info['pwd']}' "
+	        	end
+	         when :cf
+	         	if (args.user.blank? || args.pwd.blank?)
+	         		"#{paas_info['paas_login_cmd']}"
+	         	else
+	            	opts = "#{paas_info['paas_login_cmd']} -a #{paas_info['target_url']}  --u #{paas_info['user']} --p '#{paas_info['pwd']}' "
+	        	end
+	       end
+	     end
+	     shell_exec(PAAS_CMD, opts)
+	 rescue Exception => e
+	 		exit(e.status)
+	 end
+   end
+
+   # rake paas:logout
+   desc 'aPaas logout'
+   task :logout => :verify_flavor do
+   	begin
+   		shell_exec(PAAS_CMD, paas_info['paas_logout_cmd'])
+ 	rescue Exception => e
+ 		exit(e.status)
+ 	end
    end
 
    desc 'aPaas info'
-   task :info  do
+   task :info => :verify_flavor do
      begin
-       if is_supported?(supported_paas,PAAS_FLAVOR)
-            shell_exec(PAAS_CMD, paas_info['paas_info_cmd'])
-       end
+       shell_exec(PAAS_CMD, paas_info['paas_info_cmd']) 
+     rescue Exception => e
+     	exit(e.status)
      end
    end
 
-   desc 'Set apaas targer URL'
-   task :target  do
+   # rake paas:target[<apaas_privder_url>]
+   desc 'Set apaas target URL'
+   task :target => :verify_flavor do
      begin
-       if is_supported?(supported_paas,PAAS_FLAVOR)
           cmd_opts = "#{paas_info['paas_target_cmd']} #{paas_info['target_url']}"
           shell_exec(PAAS_CMD, cmd_opts)
-       end
+     rescue Exception => e
+     	exit(e.status)
      end
    end
 
 
    desc 'start app_name'
-   task :start, [:app_name] do |t, args|
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+   task :start, [:app_name] => :verify_flavor do |t, args|
+   	 begin
         cmd_opts = "#{paas_info['paas_start_cmd']} #{args.app_name}"
         shell_exec(PAAS_CMD, cmd_opts)
+      rescue Exception => e
+     	exit(e.status)
      end
    end
 
    desc 'stop app_name'
-   task :stop, [:app_name] do |t, args|
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+   task :stop, [:app_name] => :verify_flavor do |t, args|
+   	 begin
         cmd_opts = "#{paas_info['paas_stop_cmd']} #{args.app_name}"
         shell_exec(PAAS_CMD, cmd_opts)
+     rescue Exception => e
+     	exit(e.status)
      end
    end
 
    desc 'restart app_name'
-   task :restart, [:app_name] do |t, args|
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+   task :restart, [:app_name] => :verify_flavor do |t, args|
+   	 begin
         cmd_opts = "#{paas_info['paas_restart_cmd']} #{args.app_name}"
         shell_exec(PAAS_CMD, cmd_opts)
+     rescue Exception => e
+     	exit(e.status)
      end
    end
 
    desc 'delete app_name'
-   task :delete, [:app_name] do |t, args|
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+   task :delete, [:app_name] => :verify_flavor do |t, args|
+   	begin
         cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -n"
         shell_exec(PAAS_CMD, cmd_opts)
-     end
+    rescue Exception => e
+     	exit(e.status)
+    end
    end
 
   desc 'application deployment - creates application instance'
-  task :deploy, [:app_name] do |t, args|
-    if is_supported?(supported_paas,PAAS_FLAVOR)
+  task :deploy, [:app_name] => :verify_flavor do |t, args|
+    begin
         cmd_opts = "#{paas_info['paas_push_cmd']} #{args.app_name} -n"
         shell_exec(PAAS_CMD, cmd_opts)
-    end
+    rescue Exception => e
+     	exit(e.status)
+     end
   end
 
-  desc 'application update'
-  task :update, [:app_name] do  |t, args|
-    if is_supported?(supported_paas,PAAS_FLAVOR)
-        cmd_opts = "#{paas_info['paas_update_cmd']} #{args.app_name} -n"
-        shell_exec(PAAS_CMD, cmd_opts)
-    end
-  end
-
-   desc 'display resource usage for the application'
-   task :stats, [:app_name] do  |t, args|
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+  desc 'display resource usage for the application'
+  task :stats, [:app_name] => :verify_flavor do |t, args|
+   	begin
        cmd_opts = "#{paas_info['paas_stats_cmd']} --json #{args.app_name}"
        shell_exec(PAAS_CMD, cmd_opts)
-     end
-   end
+    rescue Exception => e
+     	exit(e.status)
+    end
+  end
 
-   desc 'list deployed applications'
-   task :list do
-     if is_supported?(supported_paas,PAAS_FLAVOR)
+  desc 'list deployed applications'
+  task :list => :verify_flavor do
+   	begin
        cmd_opts = "#{paas_info['paas_list_cmd']} --json"
        shell_exec(PAAS_CMD, cmd_opts)
-     end
-   end
+    rescue Exception => e
+     	exit(e.status)
+    end
+  end
 
 end

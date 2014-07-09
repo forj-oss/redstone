@@ -14,21 +14,24 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #####################################################################
+#
+# note you can add additional parameters to the mapped command. these will be passed along to the CLI
+# example: paas_info_cmd: 	info --json
 
 paas_flavor: hp
 user:
 pwd: 
-target_url: api.shared.apaas.hpcloudsvc.com
-paas_cli: /usr/local/bin/<APAAS_CLI>
+target_url: api.cluster.hdpinternals.com
+paas_cli: /usr/local/bin/hdp
 paas_push_cmd: push
-paas_update_cmd: update
-paas_apps_cmd: apps
-paas_info_cmd: info
+paas_apps_cmd: 	apps
+paas_info_cmd: 	info 
 paas_login_cmd: login
+paas_logout_cmd: logout
 paas_target_cmd: target
-paas_stop_cmd: stop
-paas_start_cmd: start
+paas_stop_cmd: 	 stop
+paas_start_cmd:  start
 paas_restart_cmd: restart
-paas_del_cmd: delete
+paas_del_cmd: 	delete
 paas_stats_cmd: stats
-paas_list_cmd: apps
+paas_list_cmd: 	apps
