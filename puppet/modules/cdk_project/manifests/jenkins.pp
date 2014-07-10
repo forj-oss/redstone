@@ -302,7 +302,7 @@ class cdk_project::jenkins (
           Class['::jenkins::job_builder'],
         ],
         logoutput   => true,
-      }->
+      }
       exec {'remove admin permissions for anonymous users':
         command       => 'sed -i.bak \'/hudson.model.Hudson.Administer:anonymous/d\' /var/lib/jenkins/config.xml | service jenkins restart',
         path          => '/bin:/usr/bin:/usr/local/bin',
