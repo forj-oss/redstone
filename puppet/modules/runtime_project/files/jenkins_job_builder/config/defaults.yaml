@@ -9,9 +9,7 @@
 
       In modules/runtime_project/files/jenkins_job_builder/config
       </p>
-     <p>
-      More instructions can be found <a href="http://docs.forj.io/en/latest/user/kits/redstone.html#adding-a-new-jenkins-job-and-configure-zuul-for-a-given-project-in-gerrit">here</a>.
-      </p>
+      <p>More instructions can be found <a href="http://docs.forj.io/en/latest/user/kits/redstone.html#adding-a-new-jenkins-job-and-configure-zuul-for-a-given-project-in-gerrit">here</a>.</p>
     project-type: freestyle
     concurrent: true
 

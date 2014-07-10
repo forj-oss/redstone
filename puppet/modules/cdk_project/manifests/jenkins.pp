@@ -270,6 +270,9 @@ class cdk_project::jenkins (
       require     => Service['jenkins'],
     }
     if $manage_jenkins_jobs == true and $::jenkins_user_token != '' {
+      #TODO Remove the below line once the six package installed from the jenkins-job setup.py, this is a fix from the openstack-infra team. note:remove also the patch_six.pp manifest
+      include jenkins_config::patch_six
+
       class { '::jenkins::job_builder':
         url      => "https://${vhost_name}/",
         username => $jenkins_jobs_username,
