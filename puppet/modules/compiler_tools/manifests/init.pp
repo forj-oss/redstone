@@ -33,6 +33,7 @@
 #        }
 #
 class compiler_tools (
+  $install_stackato     = true,
   $install_cf           = true,
   $install_hdp          = true,
   $install_flake8       = true,
@@ -55,7 +56,8 @@ class compiler_tools (
     ensure => absent,
   }
 
-  $installer_package = [  'cf'      ,
+  $installer_package = [  'stackato'      ,
+                          'cf'      ,
                           'hdp'      ,
                           'flake8'      ,
                           'fortify'     ,
@@ -73,6 +75,10 @@ class compiler_tools (
                     ]
 
   $installer_hash = "{
+                    \"stackato\" : {
+                                  \"class\"        :\"compiler_tools::install::stackato\",
+                                  \"install_flag\" :\"${install_stackato}\"
+                                 },
                     \"cf\" : {
                                   \"class\"        :\"compiler_tools::install::cf\",
                                   \"install_flag\" :\"${install_cf}\"
@@ -141,4 +147,3 @@ class compiler_tools (
   }
 
 }
-

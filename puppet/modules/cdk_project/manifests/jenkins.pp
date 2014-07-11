@@ -60,9 +60,6 @@ class cdk_project::jenkins (
 
   if ( $jenkins_ssh_private_key != '' )  and ( $gerrit_server != '') {
 
-    stackato_cli{'my-stackato-cli':
-      }
-
     if $install_fortify == true {
         fortify_cli{'my-fortify-cli':
         }
