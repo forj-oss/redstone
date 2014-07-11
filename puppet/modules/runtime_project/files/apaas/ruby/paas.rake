@@ -108,10 +108,11 @@ namespace :paas do
    # examples: 
    # 	rake paas:login  - uses values from paas.yaml
    #    rake paas:login[user,pwd] - uses params
+   #    note: for cloud foundry, organization and space seem to be required params (eventhough these are
+   #          set already within the apaas )
    desc 'aPaas login'
-   task :login, [:user, :pwd] => :verify_flavor do |t, args| 
+   task :login, [:user, :pwd, :org, :space] => :verify_flavor do |t, args| 
      begin
-	     if is_supported?(supported_paas,PAAS_FLAVOR)
 	       case PAAS_FLAVOR
 	         when :hp
 	            if (args.user.blank? || args.pwd.blank?)
@@ -126,14 +127,13 @@ namespace :paas do
 	            	opts = "#{paas_info['paas_login_cmd']} --email #{paas_info['user']} --passwd '#{paas_info['pwd']}' "
 	        	end
 	         when :cf
-	         	if (args.user.blank? || args.pwd.blank?)
+	         	if (args.user.blank? || args.pwd.blank? || args.org.blank? || args.space.blank?)
 	         		"#{paas_info['paas_login_cmd']}"
 	         	else
-	            	opts = "#{paas_info['paas_login_cmd']} -a #{paas_info['target_url']}  --u #{paas_info['user']} --p '#{paas_info['pwd']}' "
+	            	opts = "#{paas_info['paas_login_cmd']} -a #{paas_info['target_url']}  -u #{paas_info['user']} -p '#{paas_info['pwd']}' -o #{args.org} -s #{args.space}"
 	        	end
 	       end
-	     end
-	     shell_exec(PAAS_CMD, opts)
+	       shell_exec(PAAS_CMD, opts)
 	 rescue Exception => e
 	 		exit(e.status)
 	 end
@@ -152,14 +152,22 @@ namespace :paas do
    desc 'aPaas info'
    task :info => :verify_flavor do
      begin
-       shell_exec(PAAS_CMD, paas_info['paas_info_cmd']) 
+       case PAAS_FLAVOR
+	       when :cf
+	       	 abort('task not supported in cloud foundry')
+	       else
+	         shell_exec(PAAS_CMD, paas_info['paas_info_cmd']) 
+	       end
      rescue Exception => e
      	exit(e.status)
      end
    end
 
-   # rake paas:target[<apaas_privder_url>]
-   desc 'Set apaas target URL'
+   # note:
+   # for hdp, stackato the target action takes a URL as an argument
+   # for cf it accepts -o ORG -s SPACE
+   # so, adjust the proper cli params in the paas.yml file
+   desc 'Set apaas target URL (hdp, stackato) or organization and space (CloudFoundry)'
    task :target => :verify_flavor do
      begin
           cmd_opts = "#{paas_info['paas_target_cmd']} #{paas_info['target_url']}"
@@ -169,6 +177,20 @@ namespace :paas do
      end
    end
 
+   #only supported by CloudFoundry
+   desc 'Set CloudFoundry api URL target'
+   task :api_target => :verify_flavor do
+   	begin
+       case PAAS_FLAVOR
+	       when :cf
+	       	 shell_exec(PAAS_CMD, paas_info['paas_api_cmd']) 
+	       else
+	       	 abort('task only supported in cloud foundry')
+	       end
+    rescue Exception => e
+     	exit(e.status)
+    end
+   end
 
    desc 'start app_name'
    task :start, [:app_name] => :verify_flavor do |t, args|
@@ -203,13 +225,18 @@ namespace :paas do
    desc 'delete app_name'
    task :delete, [:app_name] => :verify_flavor do |t, args|
    	begin
-        cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -n"
+   		case PAAS_FLAVOR
+   		when :cf 
+   			cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -f -r"
+   		else
+        	cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -n"
         shell_exec(PAAS_CMD, cmd_opts)
     rescue Exception => e
      	exit(e.status)
     end
    end
 
+  #this task is mapped to PUSH action/command of the CLI
   desc 'application deployment - creates application instance'
   task :deploy, [:app_name] => :verify_flavor do |t, args|
     begin
@@ -230,6 +257,7 @@ namespace :paas do
     end
   end
 
+  #this task is mapped to APPS action/command of the CLI
   desc 'list deployed applications'
   task :list => :verify_flavor do
    	begin
