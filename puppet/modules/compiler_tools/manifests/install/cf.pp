@@ -27,18 +27,22 @@ $cf_md5        = hiera('compiler_tools::install::cf::cf_md5', 'd9338941d98840f77
   $download_url = "${cf_url}/${cf_version}/${file_name}"
 
   downloader {$download_url:
-      ensure   => present,
-      path     => "/tmp/${file_name}",
-      md5      => $cf_md5,
-      owner    => 'puppet',
-      group    => 'puppet',
-      mode     => 755,
-      replace  => false,
-      provider => url,
+    ensure   => present,
+    path     => "/tmp/${file_name}",
+    md5      => $cf_md5,
+    owner    => 'puppet',
+    group    => 'puppet',
+    mode     => 755,
+    replace  => false,
+    provider => url,
   }
-  exec {"${cf_name}-install":
-      command => "/usr/bin/dpkg -i /tmp/${file_name}",
-      creates => '/usr/bin/cf',
-      require => Downloader[$download_url],
+  # install Cloud Foundry cli
+  if ! defined(Package['cf-cli']) {
+    package { 'cf-cli':
+      ensure    => latest,
+      source    => "/tmp/${file_name}",
+      provider  => 'dpkg',
+      require   => Downloader[$download_url],
+    }
   }
 }
