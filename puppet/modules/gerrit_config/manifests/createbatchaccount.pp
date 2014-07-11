@@ -90,6 +90,8 @@ define gerrit_config::createbatchaccount (
                         "test \$(${gerrit_config::params::gerrit_ssh} gerrit ls-groups |grep '${group}' > /dev/null 2<&1;echo $?) = 0",
                       ],
             require => File[$pubkey_target],
+  }->
+  gerrit_config::signagreements{$gerrit_id:
   }
 
   # If group is an array, then we add groups seperately
