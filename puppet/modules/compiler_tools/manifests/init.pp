@@ -33,6 +33,8 @@
 #        }
 #
 class compiler_tools (
+  $install_cf           = true,
+  $install_hdp          = true,
   $install_flake8       = true,
   $install_fortify      = false,
   $install_common       = true,
@@ -53,7 +55,9 @@ class compiler_tools (
     ensure => absent,
   }
 
-  $installer_package = [  'flake8'      ,
+  $installer_package = [  'cf'      ,
+                          'hdp'      ,
+                          'flake8'      ,
                           'fortify'     ,
                           'common'      ,
                           'dblibs'      ,
@@ -69,6 +73,14 @@ class compiler_tools (
                     ]
 
   $installer_hash = "{
+                    \"cf\" : {
+                                  \"class\"        :\"compiler_tools::install::cf\",
+                                  \"install_flag\" :\"${install_cf}\"
+                                 },
+                    \"hdp\" : {
+                                  \"class\"        :\"compiler_tools::install::hdp\",
+                                  \"install_flag\" :\"${install_hdp}\"
+                                 },
                     \"flake8\" : {
                                   \"class\"        :\"compiler_tools::install::flake8\",
                                   \"install_flag\" :\"${install_flake8}\"
