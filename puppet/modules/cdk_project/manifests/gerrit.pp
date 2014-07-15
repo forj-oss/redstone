@@ -95,6 +95,7 @@ class cdk_project::gerrit (
   $replication_targets              = hiera('cdk_project::gerrit::replication'                      ,''),
   $openidssourl                     = hiera('cdk_project::gerrit::openidssourl'                     ,'https://login.launchpad.net/+openid'), # TODO : fix 'https://www.google.com/accounts/o8/id?id='
   $require_contact_information      = hiera('cdk_project::gerrit::require_contact_information'      ,'N'), #This parameter is to be able to commit to a project with a contribution agreement enabled.
+  $custom_link                      = hiera_hash('cdk_project::gerrit::custom_link',undef),
 ) {
   if $replication_targets == ''
   {
@@ -190,7 +191,15 @@ class cdk_project::gerrit (
           require                       => Class['::gerrit_config'],
       }
 
-  $comment_links_data = concat(
+
+  if ($custom_link != undef)
+  {
+    $custom_link_arr = [$custom_link]
+  } else
+  {
+    $custom_link_arr = []
+  }
+  $comment_links_data1 = concat(
   [
     {
     name  => 'changeid',
@@ -205,6 +214,7 @@ class cdk_project::gerrit (
   ],
     $::gerrit_config::connect_bugs::commentlink
     )
+  $comment_links_data = concat($comment_links_data1, $custom_link_arr)
   notify{"commentlinks data : ${comment_links_data}":}
   class { '::gerrit_config':
       vhost_name                      => $vhost_name,
