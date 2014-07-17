@@ -109,6 +109,7 @@ maestro::backup::set_app_backup::app_name:   'gerrit'
 maestro::backup::set_app_backup::app_folder: '/home/gerrit2'
 maestro::backup::set_app_backup::bkp_name:   'gerrit-bck'
 maestro::backup::configure_box::uses_db:     'yes'
+maestro::backup::box_db_tool:                'mysqldump'
 maestro::backup::box_db_user:                'backup_usr'
 maestro::backup::box_db_password:            'changeme'
 
