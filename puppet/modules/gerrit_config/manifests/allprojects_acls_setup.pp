@@ -18,8 +18,9 @@
 #
 #
 class gerrit_config::allprojects_acls_setup (
-  $environment = $settings::environment,
-  $debug_flag = false,
+  $environment        = $settings::environment,
+  $debug_flag         = false,
+  $allprojects_config = hiera('gerrit_config::allprojects_config', 'puppet:///modules/runtime_project/gerrit/acls/production/allprojects_default.project.config'),
 )
 {
   include gerrit_config::params
@@ -76,7 +77,7 @@ class gerrit_config::allprojects_acls_setup (
       owner   => 'gerrit2',
       group   => 'gerrit2',
       mode    => '0444',
-      source  => 'puppet:///modules/gerrit_config/allprojects_default.project.config',
+      source  => $allprojects_config,
       replace => true,
     } ->
 
