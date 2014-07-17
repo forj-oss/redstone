@@ -105,18 +105,18 @@ namespace :paas do
    		end
    	end
    end
-   # examples: 
+   # examples:
    # 	rake paas:login  - uses values from paas.yaml
    #    rake paas:login[user,pwd] - uses params
    #    note: for cloud foundry, organization and space seem to be required params (eventhough these are
    #          set already within the apaas )
    desc 'aPaas login'
-   task :login, [:user, :pwd, :org, :space] => :verify_flavor do |t, args| 
+   task :login, [:user, :pwd, :org, :space] => :verify_flavor do |t, args|
      begin
 	       case PAAS_FLAVOR
 	         when :hp
 	            if (args.user.blank? || args.pwd.blank?)
-	         		opts = "#{paas_info['paas_login_cmd']} -n" 
+	         		opts = "#{paas_info['paas_login_cmd']} -n"
 	         	else
 	         		opts = "#{paas_info['paas_login_cmd']} -n #{args.user} --passwd #{args.pwd} "
 	         	end
@@ -156,7 +156,7 @@ namespace :paas do
 	       when :cf
 	       	 abort('task not supported in cloud foundry')
 	       else
-	         shell_exec(PAAS_CMD, paas_info['paas_info_cmd']) 
+	         shell_exec(PAAS_CMD, paas_info['paas_info_cmd'])
 	       end
      rescue Exception => e
      	exit(e.status)
@@ -183,7 +183,7 @@ namespace :paas do
    	begin
        case PAAS_FLAVOR
 	       when :cf
-	       	 shell_exec(PAAS_CMD, paas_info['paas_api_cmd']) 
+	       	 shell_exec(PAAS_CMD, paas_info['paas_api_cmd'])
 	       else
 	       	 abort('task only supported in cloud foundry')
 	       end
@@ -226,10 +226,11 @@ namespace :paas do
    task :delete, [:app_name] => :verify_flavor do |t, args|
    	begin
    		case PAAS_FLAVOR
-   		when :cf 
+   		when :cf
    			cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -f -r"
    		else
         	cmd_opts = "#{paas_info['paas_del_cmd']} #{args.app_name} -n"
+      end
         shell_exec(PAAS_CMD, cmd_opts)
     rescue Exception => e
      	exit(e.status)
