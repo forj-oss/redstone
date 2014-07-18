@@ -88,3 +88,6 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
   - 8139
   - 8140
   - 29418
+
+# Tool status
+maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/ci/toolstatus.sh'
