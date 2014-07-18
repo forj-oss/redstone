@@ -84,7 +84,6 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
   - 80
   - 443
   - 4730
-  - 8080
   - 8139
   - 8140
   - 29418
