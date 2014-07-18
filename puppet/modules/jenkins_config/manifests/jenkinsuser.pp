@@ -125,6 +125,7 @@ class jenkins_config::jenkinsuser(
     mode    => '0640',
     require => File['/home/jenkins/.ssh'],
     source  => 'puppet:///modules/jenkins/ssh_config',
+    replace => false,
   }
 
   file { '/home/jenkins/.gnupg':
