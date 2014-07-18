@@ -31,6 +31,7 @@ class exim_config(
 #Important: if you specify a relay host you need to make sure that port 25 is open.
 
   include exim_config::params
+  include exim_config::utils
 
   package { $::exim_config::params::package:
     ensure => present,
@@ -79,7 +80,8 @@ class exim_config(
     mode    => '0444',
     owner   => 'root',
     replace => true,
-    require => Package[$::exim_config::params::package],
+    require => [Package[$::exim_config::params::package],
+                Class['::exim_config::utils']],
   }
 
   file { '/etc/aliases':
