@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-class exim_config::aux (
+class exim_config::utils (
 ) {
     $id_array = split($::domain, '\.')
     $id = $id_array[0]
