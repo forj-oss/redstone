@@ -46,7 +46,7 @@ def load_paas_config
   rake_root = File.dirname(__FILE__)
   begin
     paas_info = {}
-    paas_info = YAML.load_file(File.join(rake_root,'paas.yml'))
+    paas_info = YAML.load_file(File.join(rake_root,'paas.yaml'))
     return paas_info
   rescue Errno::ENOENT
     abort('could not load paas.yml')
