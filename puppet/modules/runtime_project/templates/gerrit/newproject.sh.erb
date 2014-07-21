@@ -15,6 +15,7 @@ _SSH_CMD="<%= scope.lookupvar("::runtime_project::params::ssh_cmd") %> -oStrictH
 _WORKSPACE="<%= scope.lookupvar("::runtime_project::params::git_home") %>/workspace/$$"
 _LOG_FOLDER="<%= scope.lookupvar("::runtime_project::params::git_home") %>/workspace/log"
 _LOG_FILE="${_LOG_FOLDER}/$(date '+%Y-%m-%d-%H%M%S').log"
+_COMMIT_MSG="Adding $_NEW_PROJECT_NAME project to gerrit from the UI"
 
 exec 1>$_LOG_FILE 2>&1
 
@@ -25,13 +26,24 @@ echo 'Creating Project ...'
 export GIT_SSH=$_GIT_SSH_CONFIG
 _RESPONSE=$($_SSH_CMD -T > /dev/null 2<&1; echo $?)
 if !(test $_RESPONSE -eq 127) then
-    echo 'forj-config repo is not available.'
-    exit 1
+  echo 'forj-config repo is not available.'
+  exit 1
+fi
+
+if [[ $_NEW_PROJECT_NAME == *' '* ]]
+then
+  echo "Project name can't have spaces."
+  exit 1
 fi
 
 if ($_SSH_CMD gerrit ls-projects | grep $_NEW_PROJECT_NAME) then
-    echo 'The project already exists, choose another name.'
-    exit 1
+  echo 'The project already exists, choose another name.'
+  exit 1
+fi
+
+if ($_SSH_CMD gerrit query project:$_GIT_PROJECT status:open message:$_NEW_PROJECT_NAME | grep "$_COMMIT_MSG") then
+  echo 'Duplicated request.'
+  exit 1
 fi
 
 git clone ssh://$_GIT_USER@$_REVIEW_SERVER:29418/$_GIT_PROJECT
@@ -44,10 +56,12 @@ fi
 
 _PROJECT_CONFIG="$_WORKSPACE/$_GIT_PROJECT/modules/runtime_project/files/gerrit/acls/production/$_NEW_PROJECT_NAME.config"
 _PROJECTS_YAML="$_WORKSPACE/$_GIT_PROJECT/modules/runtime_project/templates/gerrit/config/production/review.projects.yaml.erb"
+
 if [ ! -f "${_PROJECTS_YAML}" ] ; then
   echo "${_GIT_PROJECT} not ready... missing ${_PROJECTS_YAML}, skipping"
   exit 1
 fi
+
 echo 'creating files...'
 echo "[access \"refs/heads/*\"]
         label-Approved = +0..+1 group $_NEW_GROUP_NAME-core
@@ -72,7 +86,7 @@ git config user.name "$_GIT_USER_NAME"
 git config user.email $_GIT_USER_EMAIL
 git add $_PROJECT_CONFIG
 git add $_PROJECTS_YAML
-git commit -m "Adding $_NEW_PROJECT_NAME project to gerrit from the UI"
+git commit -m "$_COMMIT_MSG"
 #git push origin refs/heads/master
 git push origin HEAD:refs/for/master
 git config --unset-all user.name
@@ -81,5 +95,4 @@ git config --unset-all user.email
 #Cleaning workspace
 echo 'removing workspace process'
 rm -r $_WORKSPACE
-
 exit 0
