@@ -36,7 +36,7 @@ then
   exit 1
 fi
 
-if ($_SSH_CMD gerrit ls-projects | grep $_NEW_PROJECT_NAME) then
+if ($_SSH_CMD gerrit ls-projects | grep -x $_NEW_PROJECT_NAME) then
   echo 'The project already exists, choose another name.'
   exit 1
 fi
