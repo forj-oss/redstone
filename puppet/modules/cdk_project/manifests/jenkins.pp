@@ -37,7 +37,8 @@ class cdk_project::jenkins (
   $zmq_event_receivers        = hiera('cdk_project::jenkins::zmq_event_receivers'       ,[]),
   $sysadmins                  = hiera('cdk_project::jenkins::sysadmins'                 ,[]),
   $job_builder_configs        = hiera('cdk_project::jenkins::job_builder_configs'       ,[]),
-  $openidssourl               = hiera('cdk_project::jenkins::openidssourl'              ,'https://login.launchpad.net/+openid') # TODO: fix https://www.google.com/accounts/o8/id
+  $openidssourl               = hiera('cdk_project::jenkins::openidssourl'              ,'https://login.launchpad.net/+openid'), # TODO: fix https://www.google.com/accounts/o8/id
+  $logo                       = hiera('cdk_project::jenkins::logo'                      ,'puppet:///modules/jenkins_config/openstack.png'),
 ) {
 
   if $gerrit_url == ''
@@ -91,7 +92,7 @@ class cdk_project::jenkins (
     class { 'jenkins_config::master':
       vhost_name                      => $vhost_name,
       serveradmin                     => "webmaster@${::domain}",
-      logo                            => 'puppet:///modules/jenkins_config/openstack.png',
+      logo                            => $logo,
       ssl_cert_file                   => $ssl_cert_file,
       ssl_key_file                    => $ssl_key_file,
       ssl_chain_file                  => $ssl_chain_file,
