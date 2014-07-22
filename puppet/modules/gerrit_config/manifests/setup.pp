@@ -38,7 +38,7 @@ class gerrit_config::setup(
       require                       => Class['::gerrit_config'],
   } ->
   class{'gerrit_config::createfirstaccount':
-          gerrit_id => $params::gerrit_user,
+          gerrit_id => $gerrit_config::params::gerrit_user,
   } ->
   # make the first openid user an adminsitrator
   class {'gerrit_config::firstopenidadmin':} ->
@@ -54,7 +54,7 @@ class gerrit_config::setup(
 
   gerrit_config::create_group{'Project Bootstrappers':
         owner       => 'Administrators',
-        member      => $params::gerrit_user,
+        member      => $gerrit_config::params::gerrit_user,
         description => 'Project creation group',
         isvisible   => true,
         require     => Service['gerrit'],
