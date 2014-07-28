@@ -25,7 +25,7 @@ classes:
   - cdk_project::jenkins
   - cdk_project::zuul
   - maestro::backup::configure_box
-  - maestro::backup::set_app_backup
+  - maestro::backup::manage_backup
   - maestro::app::tool_status
   - sysadmin_config::manage_servers
 
@@ -71,13 +71,13 @@ cdk_project::zuul::sysadmins:         ''
 cdk_project::zuul::gearman_workers:   ''
 
 # backup tool
-maestro::backup::set_app_backup::app_name:   'jenkins'
-maestro::backup::set_app_backup::app_folder: '/var/lib/jenkins'
-maestro::backup::set_app_backup::bkp_name:   'jenkins-bck'
-maestro::backup::configure_box::uses_db:     ''
-maestro::backup::box_db_tool:                ''
-maestro::backup::box_db_user:                ''
-maestro::backup::box_db_password:            ''
+maestro::backup::set_app_backup:
+  jenkins: 
+    app_location:     '/var/lib/jenkins'
+    db_name:          ''
+    db_backup_tool:   ''
+    db_user:          ''
+    db_password:      ''
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
 sysadmin_config::manage_servers::iptables_public_tcp_ports:

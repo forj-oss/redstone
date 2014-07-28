@@ -22,7 +22,7 @@
 classes:
   - maestro::node_vhost_lookup
   - maestro::backup::configure_box
-  - maestro::backup::set_app_backup
+  - maestro::backup::manage_backup
   - cdk_project::pip
   - cdk_project::gerrit
   - maestro::app::tool_status
@@ -103,15 +103,14 @@ cdk_project::gerrit::replication:                      ''
 cdk_project::gerrit::openidssourl:                     'https://login.launchpad.net/+openid'
 cdk_project::gerrit::require_contact_information:      'N'
 
-
 # backup tool
-maestro::backup::set_app_backup::app_name:   'gerrit'
-maestro::backup::set_app_backup::app_folder: '/home/gerrit2'
-maestro::backup::set_app_backup::bkp_name:   'gerrit-bck'
-maestro::backup::configure_box::uses_db:     'yes'
-maestro::backup::box_db_tool:                'mysqldump'
-maestro::backup::box_db_user:                'backup_usr'
-maestro::backup::box_db_password:            'changeme'
+maestro::backup::set_app_backup:
+  gerrit: 
+    app_location:     '/home/gerrit2'
+    db_name:          'reviewdb'
+    db_backup_tool:   'mysqldump'
+    db_user:          'gerrit2'
+    db_password:      'changeme'
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
 sysadmin_config::manage_servers::iptables_public_tcp_ports:
