@@ -22,7 +22,7 @@
 # or
 # sudo apt-get install python-flake8
 #
-
+set -x -v
 FLAKE8_FLAGS='--statistics --count --max-complexity 10'
 PROG=`basename "$0"`
 Usage () {
@@ -31,9 +31,6 @@ Usage () {
 }
 
 [ $# -lt 1 ] && Usage
-
-
-
 
 DIR=$1
 if [ ! -d "$DIR" ]; then
@@ -47,7 +44,11 @@ if [ "$(ls -A $DIR)" ]; then
    # flake8: noqa
    #
    # lines that contain a # noqa comment at the end will not issue warnings
-   flake8 $DIR $FLAKE8_FLAGS --config=$DIR/tox.ini
+   find . -name tox.ini -type f | while read file ; do
+      work_dir=$(dirname $file); cwd=$(pwd); cd $work_dir;
+      flake8 $DIR $FLAKE8_FLAGS --config=$DIR/tox.ini;
+      cd $cwd;
+   done
 else
     echo "$DIR is empty"$
     exit 0
