@@ -63,4 +63,17 @@ blueprint-deploy:
             - sysadmins:
             - vhost_name: "${node_vhost}"
             - site_name: 'cdkdev'
+     - nodepool:
+       name: nodepool
+       applications:
+        - nodepool:
+          class: cdk_project::nodepool
+          class_template: nodepool.pp.erb
+          class_params:
+            - vhost_name: "${node_vhost}"
+            - sysadmins:
+            - mysql_password:
+            - mysql_root_password:
+            - nodepool_ssh_private_key:
+            
 

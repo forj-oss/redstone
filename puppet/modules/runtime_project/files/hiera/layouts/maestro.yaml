@@ -38,6 +38,7 @@ maestro::nodes:
   - 'review'
   - 'util'
   - 'ci'
+#  - 'nodepool'      # Uncomment this to create a NodePool node (also uncomment below under salt)
 
 # configure the following ssh keys
 maestro::ssh_user_keys:
@@ -115,6 +116,7 @@ salt::salt_reactor:
   - 'review'
   - 'util'
   - 'ci'
+#  - 'nodepool'       # Uncomment this to enable management of Nodepool nodes by salt
 
 puppet::reports::graphite::status: 'enabled'
 puppet::reports::graphite::graphite_port: '2003'

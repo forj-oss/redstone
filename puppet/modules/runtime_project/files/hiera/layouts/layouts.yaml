@@ -92,6 +92,15 @@ jimador::discover:
     desc: 'Provide zuul gate status and more.'
     icon: true
     visible: true
+  nodepool:
+    tool_email: ''
+    tool_config: "%{nodepool_url_config}"
+    tool_url: "%{nodepool_url}"
+    category: 'dev'
+    dname: 'Nodepool Status'
+    desc: 'Provide Nodepool logs.'
+    icon: true
+    visible: true
 
 # setup parameters for puppet class on all nodes, superseeds maestro.yaml settings.
 puppet::reports: 'http'
