@@ -64,6 +64,20 @@ class gerrit_config::pyscripts (
     }
   }
 
+  file { "/opt/config/${environment}/lib/create_admin.py":
+      ensure  => present,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0555',
+      source  => 'puppet:///modules/gerrit_config/scripts/create_admin.py',
+      replace => true,
+      require => [
+                  File["/opt/config/${environment}/lib/Colorer.py"],
+                  File["/opt/config/${environment}/lib/gerrit_common.py"],
+                  File["/opt/config/${environment}/lib/gen_known_hosts.py"],
+      ],
+  }
+
   file { "/opt/config/${environment}/lib/createfirstaccount.py":
       ensure  => present,
       owner   => 'root',
