@@ -79,13 +79,20 @@ class cdk_project::zuul(
         zuul_ssh_private_key => $zuul_ssh_private_key,
         url_pattern          => $url_pattern,
         zuul_url             => $zuul_url,
-        push_change_refs     => true,
+        #push_change_refs     => true,
         job_name_in_report   => true,
         status_url           => "http://${vhost_name}", #"http://$statsd_host:8080/",
         statsd_host          => $statsd_host,
-        replication_targets  => $replication_targets,
+        #replication_targets  => $replication_targets,
         revision             => $zuul_revision,
     }
+    class { '::zuul::server': }
+    class { '::zuul::merger': }
+    file { '/etc/zuul/merger-logging.conf':
+      ensure => present,
+      source => 'puppet:///modules/openstack_project/zuul/merger-logging.conf',
+    }
+
     $site_instance = '50'
     apache::vhost { "zuul-${vhost_name}":
         port          => 80,
@@ -150,7 +157,6 @@ class cdk_project::zuul(
       gerrit_server                => $gerrit_server,
       gerrit_user                  => $gerrit_user,
       recheckwatch_ssh_private_key => $zuul_ssh_private_key,
-      require                      => Class['::zuul'],
     }
     file { '/var/lib/recheckwatch/scoreboard.html':
       ensure  => present,

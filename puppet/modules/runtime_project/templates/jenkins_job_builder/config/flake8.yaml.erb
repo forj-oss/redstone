@@ -8,7 +8,7 @@
 
    scm:
     - git:
-       url: 'ssh://<%= scope.lookupvar("::cdk_project::jenkins::gerrit_user") %>@<%= scope.lookupvar("::cdk_project::jenkins::gerrit_server") %>:<%= scope.lookupvar("::cdk_project::jenkins::gerrit_port") %>/{git_project}'
+       url: '/var/lib/zuul/git/{git_project}'
        branches:
         - '${{ZUUL_COMMIT}}'
        refspec: '${{ZUUL_REF}}'
