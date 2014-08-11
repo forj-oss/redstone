@@ -48,9 +48,27 @@ It describes the following:
   It contains a simple tutorial to learn on this blueprint by example, and a lot of references about tools installed.
 
 RedStone deployement:
------------------------------
+---------------------
 
-When you want to deploy this blueprint, you will need to define where those services will be hosted. At least, you will need 2 files.
+When you want to deploy this blueprint, there is 2 choices:
+* Create a new maestro and ask it to create your blueprint.
+* Use an existing Maestro and configure it to create your blueprint. This functionnality is currently not ready. Documentation given is for information only, and may be updated as needed.
+
+Create a new Maestro + Redstone:
+--------------------------------
+
+* Get forj cli tool - 
+  Install forj cli thanks to instructions described in https://github.com/forj-oss/cli
+* Setup hpcloud
+  forj setup
+* booting Maestro + redstone with
+  forj boot redstone on hpcloud as <InstanceName>
+
+Configure Maestro to instantiate redstone:
+------------------------------------------
+**!!! Warning !!!** This section is still under development.
+
+You will need to define where those services will be hosted. At least, you will need 2 files.
 
 - /opt/config/production/fog/cloud.conf
 
