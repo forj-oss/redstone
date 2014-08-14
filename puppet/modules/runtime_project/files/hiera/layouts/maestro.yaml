@@ -20,6 +20,15 @@
 classes:
   - runtime_project::install
   - sysadmin_config::manage_servers
+# - cacerts::custom                  # user story #2189: uncomment this to enable custom cert installation
+
+# custom cert installation, additional steps when uncommenting cacerts::custom
+# If you have a custom cert to be used on any node, you can enable this feature
+# 1. setup the cert password on maestro node:
+#    cd /etc/puppet/secure;eyaml encrypt -l 'cacerts::custom::ca_pass' -s 'thepassword' | grep "cacerts::custom::ca_pass: ENC" >> /etc/puppet/hieradata/common.eyaml
+# 2. uncomment the source module that will hold all custom certs to be unpackaged.
+# cacerts::custom::source: 'puppet:///modules/custom_certs/certs'
+#
 
 # configure maestro to run our hiera_setup in runtime_project module
 hiera::data_class: 'runtime_project::hiera_setup'
