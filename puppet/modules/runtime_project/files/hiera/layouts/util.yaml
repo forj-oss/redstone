@@ -45,7 +45,7 @@ cdk_project::graphite::graphite_admin_password:   ''
 # 'paste' tool
 cdk_project::paste::vhost_name:                   "%{::maestro::node_vhost_lookup::vname}"
 cdk_project::paste::site_name:                    'cdkdev'
-cdk_project::paste::image:                        'header-bg2.png'
+cdk_project::paste::image_name:                   'header-bg2.png'
 cdk_project::paste::image_source:                 'puppet:///lodgeit/header-bg2.png'
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
