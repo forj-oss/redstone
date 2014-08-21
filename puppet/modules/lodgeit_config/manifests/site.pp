@@ -45,8 +45,9 @@ define lodgeit_config::site(
 
   if $image_name != '' and $image_source != '' {
     file { "/srv/lodgeit/${name}/lodgeit/static/${image_name}":
-      ensure => present,
-      source =>  $image_source,
+      ensure  => present,
+      source  => $image_source,
+      replace => true,
     }
   }
 
