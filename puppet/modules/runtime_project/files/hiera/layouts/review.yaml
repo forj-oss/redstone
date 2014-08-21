@@ -102,6 +102,7 @@ cdk_project::gerrit::replicate_local:                  ''
 cdk_project::gerrit::replication:                      ''
 cdk_project::gerrit::openidssourl:                     'https://login.launchpad.net/+openid'
 cdk_project::gerrit::require_contact_information:      'N'
+cdk_project::gerrit::logo:                             'puppet:///modules/openstack_project/openstack.png'
 
 # backup tool
 maestro::backup::set_app_backup:

@@ -31,20 +31,22 @@ classes:
 server::kit: 'demo'
 # PYTHON comment: Following data are extracted from the 'openstack-layout.yaml'
 # 'status' tool
-cdk_project::status::vhost_name: "%{::maestro::node_vhost_lookup::vname}"
-cdk_project::status::graphite_url: "http://%{::maestro::node_vhost_lookup::vname}:8081"
-cdk_project::status::static_url: "http://%{::maestro::node_vhost_lookup::vname}:8080"
-cdk_project::status::maestro_url: "http://%{::eroip}"
+cdk_project::status::vhost_name:                  "%{::maestro::node_vhost_lookup::vname}"
+cdk_project::status::graphite_url:                "http://%{::maestro::node_vhost_lookup::vname}:8081"
+cdk_project::status::static_url:                  "http://%{::maestro::node_vhost_lookup::vname}:8080"
+cdk_project::status::maestro_url:                 "http://%{::eroip}"
 
 # 'graphite' tool
-cdk_project::graphite::vhost_name: "%{::maestro::node_vhost_lookup::vname}"
-cdk_project::graphite::graphite_admin_user: ''
-cdk_project::graphite::graphite_admin_email: ''
-cdk_project::graphite::graphite_admin_password: ''
+cdk_project::graphite::vhost_name:                "%{::maestro::node_vhost_lookup::vname}"
+cdk_project::graphite::graphite_admin_user:       ''
+cdk_project::graphite::graphite_admin_email:      ''
+cdk_project::graphite::graphite_admin_password:   ''
 
 # 'paste' tool
-cdk_project::paste::vhost_name: "%{::maestro::node_vhost_lookup::vname}"
-cdk_project::paste::site_name: 'cdkdev'
+cdk_project::paste::vhost_name:                   "%{::maestro::node_vhost_lookup::vname}"
+cdk_project::paste::site_name:                    'cdkdev'
+cdk_project::paste::image:                        'header-bg2.png'
+cdk_project::paste::image_source:                 'puppet:///lodgeit/header-bg2.png'
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
 sysadmin_config::manage_servers::iptables_public_tcp_ports:

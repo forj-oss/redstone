@@ -86,7 +86,7 @@ class cdk_project::gerrit (
   $swift_password                   = hiera('cdk_project::gerrit::swift_password'                   ,''),
   $ca_certs_db                      = hiera('cdk_project::gerrit::ca_certs_db'                      ,'/opt/config/cacerts'),
   $runtime_module                   = hiera('cdk_project::gerrit::runtime_module'                   ,'runtime_project'),
-  $logo                             = hiera('cdk_project::gerrit::logo'                             ,'openstack.png'),
+  $logo                             = hiera('cdk_project::gerrit::logo'                             ,'puppet:///modules/openstack_project/openstack.png'),
   $environment                      = hiera('cdk_project::gerrit::environment'                      ,$settings::environment),
   $override_vhost                   = hiera('cdk_project::gerrit::override_vhost'                   ,false),
   $demo_enabled                     = hiera('cdk_project::gerrit::demo_enabled'                     ,false),
@@ -355,7 +355,7 @@ class cdk_project::gerrit (
     owner   => 'root',
     group   => 'root',
     mode    => '0444',
-    source  => "puppet:///modules/${runtime_module}/branding/${logo}",
+    source  => $logo,
     require => Class['::gerrit_config'],
   }
 

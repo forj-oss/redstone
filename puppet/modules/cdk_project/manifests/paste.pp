@@ -17,23 +17,27 @@
 # forked from openstack_project::paste for customization
 #
 class cdk_project::paste (
-  $vhost_name     = hiera('cdk_project::paste::vhost_name'    ,$::fqdn),
-  $sysadmins      = hiera('cdk_project::paste::sysadmins'     ,[]),
-  $site_name      = hiera('cdk_project::paste::site_name'     ,'cdkdev'),
+  $vhost_name     = hiera('cdk_project::paste::vhost_name'        ,$::fqdn),
+  $sysadmins      = hiera('cdk_project::paste::sysadmins'         ,[]),
+  $site_name      = hiera('cdk_project::paste::site_name'         ,'cdkdev'),
+  $image          = hiera('cdk_project::paste::image'             ,'header-bg2.png'),
+  $image_source   = hiera('cdk_project::paste::image_source'      ,'puppet:///lodgeit/header-bg2.png')
 ) {
   require maestro::node_vhost_lookup
   include lodgeit
   if ($vhost_name != '')
   {
-    lodgeit::site { $site_name:
-      port       => '5000',
-      image      => 'header-bg2.png',
-      vhost_name => $vhost_name,
+    lodgeit_config::site { $site_name:
+      port            => '5000',
+      image           => $image,
+      image_source    => $image_source,
+      vhost_name      => $vhost_name,
     }
   } else {
-    lodgeit::site { $site_name:
-      port  => '5000',
-      image => 'header-bg2.png',
+    lodgeit_config::site { $site_name:
+      port            => '5000',
+      image           => $image,
+      image_source    => $image_source,
     }
   }
 

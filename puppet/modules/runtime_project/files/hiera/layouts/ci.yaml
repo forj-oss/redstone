@@ -49,6 +49,7 @@ cdk_project::jenkins::jenkins_solo:             true
 cdk_project::jenkins::zmq_event_receivers:      ''
 cdk_project::jenkins::sysadmins:                ''
 cdk_project::jenkins::openidssourl:             'https://login.launchpad.net/+openid'
+cdk_project::jenkins::logo:                     'puppet:///modules/openstack_project/openstack.png'
 cdk_project::jenkins::job_builder_configs:
   - 'zuul-layout.yaml'
   - 'fortify-scan.yaml'
