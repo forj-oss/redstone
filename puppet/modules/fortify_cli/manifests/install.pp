@@ -108,11 +108,11 @@ class fortify_cli::install() inherits fortify_cli::base_env {
   } ->
 
   file { '/etc/profile.d/setup_fortify_path.sh':
-          ensure  => present,
-          owner   => 'root',
-          group   => 'root',
-          mode    => '0644',
-          source  => 'puppet:///modules/fortify_cli/scripts/setup_fortify_path.sh',
+          ensure => present,
+          owner  => 'root',
+          group  => 'root',
+          mode   => '0644',
+          source => 'puppet:///modules/fortify_cli/scripts/setup_fortify_path.sh',
   } ->
 
   exec { 'fortify update...':

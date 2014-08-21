@@ -35,14 +35,14 @@ $hdp_md5        = hiera('compiler_tools::install::hdp::hdp_md5', 'e5a87bc42ca571
 
   # http://nexus.cdkdev.org:8080/nexus/content/repositories/cdk-content/org/cdkdev/clis/apaas/hpcloud/hdp/1.0/hdp-1.0-x86_64.zip
   downloader {$download_url:
-              ensure          => present,
-              path            => "/tmp/${file_name}",
-              md5             => $hdp_md5,
-              owner           => 'puppet',
-              group           => 'puppet',
-              mode            => 755,
-              replace         => false,
-              provider        => url,
+              ensure   => present,
+              path     => "/tmp/${file_name}",
+              md5      => $hdp_md5,
+              owner    => 'puppet',
+              group    => 'puppet',
+              mode     => 755,
+              replace  => false,
+              provider => url,
   }
   exec {"${hdp_name}-unzip":
       command => "/usr/bin/unzip -qq -j -o /tmp/${file_name} -d /usr/local/bin",

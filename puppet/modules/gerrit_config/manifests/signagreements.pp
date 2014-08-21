@@ -26,9 +26,9 @@ define gerrit_config::signagreements (
   # Sign the contribution agreement in case it not exists
   exec { "sign contribution agreement for ${gerrit_id} user":
       path      => ['/bin', '/usr/bin'],
-      command   => "${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${$sql_agreement_insert}'\"",
+      command   => "${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_agreement_insert}'\"",
       onlyif    => [
-                    "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${$sql_agreement_exist}'\"|grep ${gerrit_id}|wc -l) -le 0",
+                    "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_agreement_exist}'\"|grep ${gerrit_id}|wc -l) -le 0",
                     "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_account_exist}'\"|grep ${gerrit_id}|wc -l) -gt 0",
                     ],
       logoutput => true,

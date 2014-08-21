@@ -43,20 +43,20 @@ class cdk_project::graphite (
       graphite_admin_password => $graphite_admin_password,
     }->
     exec { "clean up /etc/apache2/sites-enabled/50-${::fqdn}.conf":
-      command  => "rm -f /etc/apache2/sites-enabled/50-${::fqdn}.conf" ,
-      require  => Class['graphite_config'],
-      path     => ['/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
+      command => "rm -f /etc/apache2/sites-enabled/50-${::fqdn}.conf" ,
+      require => Class['graphite_config'],
+      path    => ['/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
     }->
     apache::vhost { "graphite-${vhost_name}":
-        port          => 8080,
-        docroot       => '/var/lib/graphite/webapp',
-        priority      => 50,
-        template      => 'cdk_project/graphite.ipv4.vhost.erb',
-        servername    => 'localhost',
+        port       => 8080,
+        docroot    => '/var/lib/graphite/webapp',
+        priority   => 50,
+        template   => 'cdk_project/graphite.ipv4.vhost.erb',
+        servername => 'localhost',
     }->
     exec { 'change folder permissions':
-      command  => 'chown -R www-data:www-data /var/lib/graphite',
-      path     => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
+      command => 'chown -R www-data:www-data /var/lib/graphite',
+      path    => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
     }->
     exec { 'carbon-cache-start':
       command     => '/etc/init.d/carbon-cache start',

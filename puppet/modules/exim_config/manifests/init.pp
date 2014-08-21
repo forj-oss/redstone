@@ -65,12 +65,12 @@ class exim_config(
   }
 
   service { 'exim':
-    ensure      => running,
-    name        => $::exim_config::params::service_name,
-    hasrestart  => true,
-    subscribe   => [File[$::exim_config::params::config_file],
+    ensure     => running,
+    name       => $::exim_config::params::service_name,
+    hasrestart => true,
+    subscribe  => [File[$::exim_config::params::config_file],
                     File[$::exim_config::params::sysdefault_file]],
-    require     => Package[$::exim_config::params::package],
+    require    => Package[$::exim_config::params::package],
   }
 
   file { $::exim_config::params::config_file:

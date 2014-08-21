@@ -38,10 +38,10 @@ define runtime_project::clone(
     if ! defined(File[$runtime_project::params::git_home])
     {
       file { $runtime_project::params::git_home:
-        ensure  => directory,
-        owner   => 'puppet',
-        group   => 'puppet',
-        mode    => '2775',
+        ensure => directory,
+        owner  => 'puppet',
+        group  => 'puppet',
+        mode   => '2775',
       }
     }
 
@@ -49,15 +49,15 @@ define runtime_project::clone(
     # check if gerrit project exist
     # verify the git repo is not already checked out
     exec { "clone ${repo} : clone project ${repo} if exists":
-      path         => ['/bin', '/usr/bin'],
-      command      => "git clone ssh://${runtime_project::params::gerrit_user}@${::runtime_gerrit_ip}/${repo}",
-      cwd          => $runtime_project::params::git_home,
-      environment  => [ "GIT_SSH=${config_spec}" ],
-      onlyif       => [ "test $(${sshcmd} -T > /dev/null 2<&1; echo $?) -eq 127",
+      path        => ['/bin', '/usr/bin'],
+      command     => "git clone ssh://${runtime_project::params::gerrit_user}@${::runtime_gerrit_ip}/${repo}",
+      cwd         => $runtime_project::params::git_home,
+      environment => [ "GIT_SSH=${config_spec}" ],
+      onlyif      => [ "test $(${sshcmd} -T > /dev/null 2<&1; echo $?) -eq 127",
                         "${sshcmd} gerrit ls-projects|grep ${repo}",
                         "test ! -d  ${git_repo}" ],
-      user         => 'puppet',
-      require      => [ Class['runtime_project::account_config'],
+      user        => 'puppet',
+      require     => [ Class['runtime_project::account_config'],
                         File[$runtime_project::params::git_home] ],
     }
 

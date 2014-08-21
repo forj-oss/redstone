@@ -42,8 +42,8 @@ define compiler_tools::package_install (
         {
           debug("installing package ${package} with ensure, ${ensure_option} and requires ${package_requires}")
           package { $package:
-            ensure   => $ensure_option,
-            require  => $package_requires,
+            ensure  => $ensure_option,
+            require => $package_requires,
           }
         }
       }

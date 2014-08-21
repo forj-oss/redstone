@@ -138,11 +138,11 @@ class gerrit_config::allprojects_acls_setup (
   }
 
   exec { 'push All-Project':
-        path        => ['/bin', '/usr/bin'],
-        command     => 'git push gerrit HEAD:refs/meta/config',
-        cwd         => '/home/gerrit2/workspace/All-Projects',
-        onlyif      => 'test $(git branch -r --contains $(git rev-parse HEAD) | wc -l) -le 0',
-        require     => Exec['commit All-Project'],
+        path    => ['/bin', '/usr/bin'],
+        command => 'git push gerrit HEAD:refs/meta/config',
+        cwd     => '/home/gerrit2/workspace/All-Projects',
+        onlyif  => 'test $(git branch -r --contains $(git rev-parse HEAD) | wc -l) -le 0',
+        require => Exec['commit All-Project'],
   }
 
 }

@@ -174,10 +174,10 @@ class cdk_project::gerrit (
 
   # Setup MySQL
   class { 'gerrit::mysql':
-    mysql_root_password  => $mysql_root_password,
-    database_name        => 'reviewdb',
-    database_user        => 'gerrit2',
-    database_password    => $mysql_password,
+    mysql_root_password => $mysql_root_password,
+    database_name       => 'reviewdb',
+    database_user       => 'gerrit2',
+    database_password   => $mysql_password,
   } ->
 
   # lets setup jeepy
@@ -185,10 +185,10 @@ class cdk_project::gerrit (
   #       and so removed to make puppet-lint happy
 
   class {'gerrit_config::setup':
-          demo_enabled                  => $demo_enabled,
-          buglinks_enabled              => $buglinks_enabled,
-          require_contact_information   => $require_contact_information,
-          require                       => Class['::gerrit_config'],
+          demo_enabled                => $demo_enabled,
+          buglinks_enabled            => $buglinks_enabled,
+          require_contact_information => $require_contact_information,
+          require                     => Class['::gerrit_config'],
       }
 
 

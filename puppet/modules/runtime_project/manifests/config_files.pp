@@ -40,15 +40,15 @@ define runtime_project::config_files(
   $sync_modules = "rsync -a ${root_cdkinfra}/${cdkinfra_runtime} ${modules_dir}"
 
   exec { "${repo} : initialize ${repo_dir}/modules/runtime_project":
-    path     => ['/bin', '/usr/bin'],
-    command  => "${make_modules};${sync_modules}",
-    cwd      => $runtime_project::params::git_home,
-    onlyif   => [
+    path    => ['/bin', '/usr/bin'],
+    command => "${make_modules};${sync_modules}",
+    cwd     => $runtime_project::params::git_home,
+    onlyif  => [
                   "test -d ${repo_dir}",
                   "test -d ${git_repo}",
                   "test ! -d ${repo_dir}/modules/runtime_project"
                 ],
-    user     => 'puppet',
+    user    => 'puppet',
   }
 
   # only perform this work if there is a git repo
@@ -88,11 +88,11 @@ define runtime_project::config_files(
   $runtime_exists = str2bool(inline_template("<%= File.exists?('${repo_dir}/manifests/site.pp') %>"))
   if $runtime_exists {
     file { "${runtime_project::params::config_home}/puppet":
-      ensure  => 'link',
-      target  => $repo_dir,
-      force   => true,
-      owner   => 'puppet',
-      group   => 'puppet',
+      ensure => 'link',
+      target => $repo_dir,
+      force  => true,
+      owner  => 'puppet',
+      group  => 'puppet',
     }
   } else {
       notice('skipping setting up link till site.pp

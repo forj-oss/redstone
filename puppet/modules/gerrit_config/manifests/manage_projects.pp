@@ -82,15 +82,15 @@ class gerrit_config::manage_projects (
   $md5_t1 = "md5sum ${prj_yaml} |awk '{print \$1}'"
   $md5_t2 = "md5sum ${prj_yaml}.preset | awk '{print \$1}'"
   exec { 'move /home/gerrit2/projects.yaml.preset':
-        path     => [ '/bin/', '/sbin/' , '/usr/bin/',
+        path    => [ '/bin/', '/sbin/' , '/usr/bin/',
                       '/usr/sbin/' , '/usr/local/bin/'],
-        command  => "cp ${prj_yaml}.preset ${prj_yaml}",
-        onlyif   => [
+        command => "cp ${prj_yaml}.preset ${prj_yaml}",
+        onlyif  => [
           $manage_t, # only run if the account exist, value returns 1
           "test -f ${prj_yaml}.preset",
           "test ! \"\$(${md5_t1})\" = \"\$(${md5_t2})\"",
         ],
-        require  => File['/home/gerrit2/acls'],
+        require => File['/home/gerrit2/acls'],
   }
 
   # only run if the account exist

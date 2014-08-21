@@ -23,10 +23,10 @@ define fortify_cli($msg = $title) {
   notice("running ${msg}")
   class {'fortify_cli::install' : } ->
   file { '/usr/local/bin/ff-scan.sh':
-          ensure  => present,
-          owner   => 'jenkins',
-          group   => 'jenkins',
-          mode    => '0775',
-          source  => 'puppet:///modules/fortify_cli/scripts/ff-scan.sh',
+          ensure => present,
+          owner  => 'jenkins',
+          group  => 'jenkins',
+          mode   => '0775',
+          source => 'puppet:///modules/fortify_cli/scripts/ff-scan.sh',
   }
 }

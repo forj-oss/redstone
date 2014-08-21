@@ -69,12 +69,12 @@ class cdk_project::status (
       # Status - Index
 
       apache::vhost { "status-${vhost_name}":
-        port        => 8080,
-        priority    => '50',
-        docroot     => '/srv/static/status',
-        template    => 'cdk_project/status/status.ipv4.vhost.erb',
-        require     => File['/srv/static/status'],
-        servername  => 'localhost',
+        port       => 8080,
+        priority   => '50',
+        docroot    => '/srv/static/status',
+        template   => 'cdk_project/status/status.ipv4.vhost.erb',
+        require    => File['/srv/static/status'],
+        servername => 'localhost',
       }
 
       file { '/srv/static/status':

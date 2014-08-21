@@ -36,13 +36,13 @@ class jenkins_config::master(
   include jenkins_config::params
 
   exec { 'apt-get clean':
-      path     => '/bin:/usr/bin',
-      command  => 'apt-get clean',
+      path    => '/bin:/usr/bin',
+      command => 'apt-get clean',
   }
 
   exec { 'apt-get update cache':
-    path        => '/bin:/usr/bin',
-    command     => 'apt-get update',
+    path    => '/bin:/usr/bin',
+    command => 'apt-get update',
   }
 
   package { 'openjdk-7-jre-headless':

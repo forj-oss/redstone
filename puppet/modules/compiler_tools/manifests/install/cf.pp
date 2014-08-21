@@ -39,10 +39,10 @@ $cf_md5        = hiera('compiler_tools::install::cf::cf_md5', 'd9338941d98840f77
   # install Cloud Foundry cli
   if ! defined(Package['cf-cli']) {
     package { 'cf-cli':
-      ensure    => latest,
-      source    => "/tmp/${file_name}",
-      provider  => 'dpkg',
-      require   => Downloader[$download_url],
+      ensure   => latest,
+      source   => "/tmp/${file_name}",
+      provider => 'dpkg',
+      require  => Downloader[$download_url],
     }
   }
 }

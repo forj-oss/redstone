@@ -28,8 +28,8 @@ class gerrit_config::tests::firstopenidadmin (
 {
   class{'gerrit_config::firstopenidadmin':}
   service { 'gerrit':
-    ensure    => running,
-    enable    => true,
+    ensure => running,
+    enable => true,
   }
 
 }

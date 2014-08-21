@@ -188,8 +188,8 @@ class graphite_config(
   }
 
   file { '/usr/local/bin/graphite-init-db.py':
-    mode    => '0555',
-    source  => 'puppet:///modules/graphite/graphite-init-db.py'
+    mode   => '0555',
+    source => 'puppet:///modules/graphite/graphite-init-db.py'
   }
 
   file { '/etc/graphite/admin.ini':
@@ -202,18 +202,18 @@ class graphite_config(
   }
 
   file { '/etc/init.d/carbon-cache':
-    mode    => '0555',
-    source  => 'puppet:///modules/graphite/carbon-cache.init'
+    mode   => '0555',
+    source => 'puppet:///modules/graphite/carbon-cache.init'
   }
 
   file { '/etc/init.d/statsd':
-    mode    => '0555',
-    source  => 'puppet:///modules/graphite/statsd.init'
+    mode   => '0555',
+    source => 'puppet:///modules/graphite/statsd.init'
   }
 
   file { '/etc/default/statsd':
-    mode    => '0444',
-    source  => 'puppet:///modules/graphite/statsd.default'
+    mode   => '0444',
+    source => 'puppet:///modules/graphite/statsd.default'
   }
 
   service { 'carbon-cache':

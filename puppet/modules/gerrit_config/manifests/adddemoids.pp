@@ -93,11 +93,11 @@ class gerrit_config::adddemoids (
       } ->
     # run sql
     exec { 'run adddemoids':
-              path        => ['/bin', '/usr/bin'],
-              command     => "python ${lib_path}/gerrit_runsql.py ${debug_opts} ${run_sql_config_opt} ${run_sql_log_opt}",
-              require     => File["${lib_path}/gerrit_runsql.py"],
-              onlyif      => "test $(${gerrit_config::params::gerrit_ssh} gerrit gsql --format JSON -c \"'${sql_check}'\"|grep 'columns' | wc -l) -gt 0",
-              notify      => Service['gerrit'],
+              path    => ['/bin', '/usr/bin'],
+              command => "python ${lib_path}/gerrit_runsql.py ${debug_opts} ${run_sql_config_opt} ${run_sql_log_opt}",
+              require => File["${lib_path}/gerrit_runsql.py"],
+              onlyif  => "test $(${gerrit_config::params::gerrit_ssh} gerrit gsql --format JSON -c \"'${sql_check}'\"|grep 'columns' | wc -l) -gt 0",
+              notify  => Service['gerrit'],
           }
   }
   #

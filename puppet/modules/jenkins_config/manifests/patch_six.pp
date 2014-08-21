@@ -17,10 +17,10 @@
 #
 class jenkins_config::patch_six() {
   exec {'Install six package if not exists':
-        command       => 'pip install six',
-        onlyif        => "test $(pip list | grep six | grep -v grep | wc -l) -eq 0",
-        path          => '/bin:/usr/bin:/usr/local/bin',
-        logoutput     => true,
-        require       => Class['::jenkins::job_builder'],
+        command   => 'pip install six',
+        onlyif    => "test $(pip list | grep six | grep -v grep | wc -l) -eq 0",
+        path      => '/bin:/usr/bin:/usr/local/bin',
+        logoutput => true,
+        require   => Class['::jenkins::job_builder'],
     }
 }

@@ -34,8 +34,8 @@ class gerrit_config::setup(
   }
 
   class{'gerrit_config::gerrit_init':
-      require_contact_information   => $require_contact_information,
-      require                       => Class['::gerrit_config'],
+      require_contact_information => $require_contact_information,
+      require                     => Class['::gerrit_config'],
   } ->
   class{'gerrit_config::createfirstaccount':
           gerrit_id => $gerrit_config::params::gerrit_user,
@@ -46,8 +46,8 @@ class gerrit_config::setup(
                   enabled         => $demo_enabled,
       } ->
   service { 'gerrit':
-    ensure    => running,
-    enable    => true,
+    ensure => running,
+    enable => true,
   }
 
 # Below steps should not require a service restart.
@@ -70,9 +70,9 @@ class gerrit_config::setup(
         isvisible   => true,
   } ->
   gerrit_config::create_group{'Release Managers':
-        owner         => 'Project Bootstrappers',
-        description   => 'Release managers',
-        isvisible     => true,
+        owner       => 'Project Bootstrappers',
+        description => 'Release managers',
+        isvisible   => true,
   } ->
   gerrit_config::create_group{'Stable Maintainers':
         owner       => 'Project Bootstrappers',
@@ -95,9 +95,9 @@ class gerrit_config::setup(
         group         => 'Administrators',  # after gerrit 2.7 we can do groups
   } ->
   file { '/tmp/post-configure.sh':
-        ensure       => 'present',
-        mode         => '0744',
-        source       => 'puppet:///modules/gerrit_config/post-configure.sh',
+        ensure => 'present',
+        mode   => '0744',
+        source => 'puppet:///modules/gerrit_config/post-configure.sh',
       }
 
 }

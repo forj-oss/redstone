@@ -55,9 +55,9 @@ class stackato_cli::install(
 
     if !empty($clipath) {
       exec { 'stackato-install-shell':
-        command  => 'stackato-install.sh',
-        path     => $clipath,
-        require  => File['/tmp/stackato-1.7.4-linux-glibc2.3-x86_64.zip'],
+        command => 'stackato-install.sh',
+        path    => $clipath,
+        require => File['/tmp/stackato-1.7.4-linux-glibc2.3-x86_64.zip'],
       }
     } else {
       file { '/tmp/stackato-install.sh':

@@ -68,11 +68,11 @@ class nexus(
 
     # Install script
     file { "/opt/config/${::environment}/scripts/download-artifact-from-nexus.sh":
-      ensure   => file,
-      owner    => 'root',
-      mode     => '0755',
-      source   => 'puppet:///modules/nexus/download-artifact-from-nexus.sh',
-      require  => [File["/opt/config/${::environment}/scripts"]]
+      ensure  => file,
+      owner   => 'root',
+      mode    => '0755',
+      source  => 'puppet:///modules/nexus/download-artifact-from-nexus.sh',
+      require => [File["/opt/config/${::environment}/scripts"]]
     }
 
     # Duplicated at gerrit_config/manifests/pyscripts.pp

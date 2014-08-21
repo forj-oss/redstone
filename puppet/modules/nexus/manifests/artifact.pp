@@ -73,7 +73,7 @@ define nexus::artifact(
   }
 
 # root path /opt/config set in nexus class
-  $cmd = "/opt/config/${::environment}/scripts/download-artifact-from-nexus.sh -a ${gav} -e ${packaging} ${$includeClass} -n ${nexus::nexus_url} -r ${repository} -o ${output} ${args} -v"
+  $cmd = "/opt/config/${::environment}/scripts/download-artifact-from-nexus.sh -a ${gav} -e ${packaging} ${includeClass} -n ${nexus::nexus_url} -r ${repository} -o ${output} ${args} -v"
 
   if (($ensure == update) and ($gav =~ /-SNAPSHOT/)) {
     exec { "Checking ${gav}-${classifier}":
@@ -85,9 +85,9 @@ define nexus::artifact(
 
   if $ensure == present {
     exec { "Download ${gav}-${classifier}":
-      command  => $cmd,
-      creates  => $output,
-      timeout  => $timeout,
+      command => $cmd,
+      creates => $output,
+      timeout => $timeout,
     }
   } elsif $ensure == absent {
     file { "Remove ${gav}-${classifier}":

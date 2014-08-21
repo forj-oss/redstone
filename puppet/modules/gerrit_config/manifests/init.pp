@@ -368,11 +368,11 @@ class gerrit_config(
 
   if $robots_txt_source != '' {
     file { '/home/gerrit2/review_site/static/robots.txt':
-      owner    => 'root',
-      group    => 'root',
-      mode     => '0444',
-      source   => $robots_txt_source,
-      require  => File['/home/gerrit2/review_site/static'],
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0444',
+      source  => $robots_txt_source,
+      require => File['/home/gerrit2/review_site/static'],
     }
   }
 

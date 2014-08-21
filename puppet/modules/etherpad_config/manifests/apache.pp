@@ -47,12 +47,12 @@ class etherpad_config::apache (
 #    ensure => present,
 #  }
   file { '/etc/apache2/conf.d/connection-tuning':
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    source  => 'puppet:///modules/etherpad_lite/apache-connection-tuning',
-    notify  => Service['httpd'],
+    ensure => present,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0644',
+    source => 'puppet:///modules/etherpad_lite/apache-connection-tuning',
+    notify => Service['httpd'],
   }
 
   file { '/etc/ssl/certs':
