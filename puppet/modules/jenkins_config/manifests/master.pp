@@ -17,6 +17,7 @@
 #
 class jenkins_config::master(
   $logo = hiera('jenkins_config::master::logo', 'puppet:///modules/jenkins_config/openstack.png'),
+  $header_template = hiera('jenkins_config::master::header_template','jenkins/openstack.js.erb'),  # allows us to change the text that shows in the header for jenkins server.
   $vhost_name = $::fqdn,
   $serveradmin = "webmaster@${::domain}",
   $ssl_cert_file = '',
@@ -239,7 +240,7 @@ class jenkins_config::master(
     ensure  => present,
     owner   => 'jenkins',
     group   => 'nogroup',
-    content => template('jenkins/openstack.js.erb'),
+    content => template($header_template),
     require => File['/var/lib/jenkins/plugins/simple-theme-plugin'],
   }
 
