@@ -14,9 +14,9 @@
 # == Class: runtime_project::nodepool_config
 #
 class runtime_project::nodepool_config(
-  $mysql_root_password,
-  $mysql_password,
-  $nodepool_ssh_private_key = '',
+  $mysql_password                   = hiera('cdk_project::nodepool::mysql_password'                   ,''),
+  $mysql_root_password              = hiera('cdk_project::nodepool::mysql_root_password'              ,''),
+  $nodepool_ssh_private_key         = hiera('cdk_project::nodepool::nodepool_ssh_private_key'         ,''),
   $nodepool_template = 'nodepool.yaml.erb',
   $sysadmins = [],
   $statsd_host = '',
@@ -33,7 +33,7 @@ class runtime_project::nodepool_config(
   $tripleo_password ='',
   $tripleo_project ='',
   $image_log_document_root = '/var/log/nodepool/image',
-  $enable_image_log_via_http = true,
+  $enable_image_log_via_http = hiera('cdk_project::nodepool::image_log_via_http',false),
 ) {
 #  class { 'openstack_project::server':
 #    sysadmins                 => $sysadmins,

@@ -18,16 +18,16 @@
 # == Class: cdk_project::nodepool
 #
 class cdk_project::nodepool (
-  $mysql_password                   = hiera('cdk_project::nodepool::mysql_password'                   ,''),
-  $mysql_root_password              = hiera('cdk_project::nodepool::mysql_root_password'              ,''),
-  $nodepool_ssh_private_key         = hiera('cdk_project::nodepool::nodepool_ssh_private_key'         ,''),
-  $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
-  $revision = 'master',
-  $statsd_host = '',
-  $vhost_name                 = hiera('cdk_project::nodepool::vhost_name'                ,$::fqdn),
-  $image_log_document_root = '/var/log/nodepool/image',
-  $enable_image_log_via_http = false,
-  $environment = {},
+  $mysql_password            = hiera('cdk_project::nodepool::mysql_password'          ,''),
+  $mysql_root_password       = hiera('cdk_project::nodepool::mysql_root_password'     ,''),
+  $nodepool_ssh_private_key  = hiera('cdk_project::nodepool::nodepool_ssh_private_key',''),
+  $git_source_repo           = 'https://git.openstack.org/openstack-infra/nodepool',
+  $revision                  = 'master',
+  $statsd_host               = '',
+  $vhost_name                = hiera('cdk_project::nodepool::vhost_name'              ,$::fqdn),
+  $image_log_document_root   = '/var/log/nodepool/image',
+  $enable_image_log_via_http = hiera('cdk_project::nodepool::image_log_via_http',false),
+  $environment               = {},
 ) {
 
   class { 'mysql::server':

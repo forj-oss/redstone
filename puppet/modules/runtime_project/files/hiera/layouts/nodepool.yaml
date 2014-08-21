@@ -21,7 +21,6 @@
 # PYTHON comment: It uses name and list of application (attaching a class name for each application, determined from the openstack-master.yaml)
 classes:
   - maestro::node_vhost_lookup
-  - cdk_project::nodepool
   - runtime_project::nodepool_config
   - maestro::app::tool_status
   - sysadmin_config::manage_servers
@@ -31,9 +30,10 @@ server::kit: 'demo'
 # PYTHON comment: Following data are extracted from the 'openstack-layout.yaml'
 # 'nodepool' tool
 cdk_project::nodepool::vhost_name: "%{::maestro::node_vhost_lookup::vname}"
-cdk_project::nodepool::mysql_password: ''
-cdk_project::nodepool::mysql_root_password: ''
+cdk_project::nodepool::mysql_password: 'changeme'
+cdk_project::nodepool::mysql_root_password: 'changeme'
 cdk_project::nodepool::nodepool_ssh_private_key: ''
+cdk_project::nodepool::image_log_via_http: false
 
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
