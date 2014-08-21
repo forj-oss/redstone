@@ -65,7 +65,7 @@ cdk_project::zuul::ca_certs_db:       '/opt/config/cacerts'
 cdk_project::zuul::url_pattern:       ''
 cdk_project::zuul::graphite_url:      ''
 cdk_project::zuul::zuul_url:          "http://%{::maestro::node_vhost_lookup::vname}/p"
-cdk_project::zuul::zuul_revision:     '951d8f366ce68238e2988aadd913b2d12656bbb3'
+cdk_project::zuul::zuul_revision:     '2de0c2a37a8d52a09d1375e374deeec52fea38bf'
 cdk_project::zuul::replication_urls:  ''
 cdk_project::zuul::sysadmins:         ''
 cdk_project::zuul::gearman_workers:   ''
