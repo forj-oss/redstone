@@ -29,14 +29,14 @@ class cdk_project::paste (
   {
     lodgeit_config::site { $site_name:
       port            => '5000',
-      image_name      => $image_name,
+      image           => $image_name,
       image_source    => $image_source,
       vhost_name      => $vhost_name,
     }
   } else {
     lodgeit_config::site { $site_name:
       port            => '5000',
-      image_name      => $image_name,
+      image           => $image_name,
       image_source    => $image_source,
     }
   }

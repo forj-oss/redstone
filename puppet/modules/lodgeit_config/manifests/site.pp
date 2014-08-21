@@ -17,7 +17,7 @@
 define lodgeit_config::site(
   $port,
   $vhost_name   ="paste.${name}.org",
-  $image_name   ='', # was header-bg2.png
+  $image        ='', # was header-bg2.png
   $image_source = '', # was puppet:///modules/logedit/header-bg2.png
   ) {
 
@@ -43,8 +43,8 @@ define lodgeit_config::site(
     source  => '/tmp/lodgeit-main',
   }
 
-  if $image_name != '' and $image_source != '' {
-    file { "/srv/lodgeit/${name}/lodgeit/static/${image_name}":
+  if $image != '' and $image_source != '' {
+    file { "/srv/lodgeit/${name}/lodgeit/static/${image}":
       ensure  => present,
       source  => $image_source,
       replace => true,
