@@ -87,7 +87,7 @@ class cdk_project::jenkins (
 
     ::sysadmin_config::swap { '512':
     } ->
-    class {'jenkins::jenkinsuser':
+    class {'jenkins_config::jenkinsuser':
     } ->
     class { 'jenkins_config::master':
       vhost_name              => $vhost_name,

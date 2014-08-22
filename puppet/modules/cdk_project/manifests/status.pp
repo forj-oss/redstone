@@ -46,7 +46,7 @@ class cdk_project::status (
   if $zuul_url != '' and $zuul_url != '#'
   {
       #include openstack_project
-      # class { 'jenkins::jenkinsuser':
+      # class { 'jenkins_config::jenkinsuser':
         # ssh_key => "",
       # }
 

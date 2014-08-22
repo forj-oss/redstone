@@ -28,9 +28,9 @@ class jenkins_config::slave(
   include jenkins_config::params
 
   if ($user == true) {
-    if ! defined(Class['jenkins::jenkinsuser'])
+    if ! defined(Class['jenkins_config::jenkinsuser'])
     {
-      class { 'jenkins::jenkinsuser':
+      class { 'jenkins_config::jenkinsuser':
         ensure  => present,
         sudo    => $sudo,
         ssh_key => $ssh_key,

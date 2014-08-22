@@ -1,4 +1,4 @@
-# == Class: jenkins::jenkinsuser
+# == Class: jenkins_config::jenkinsuser
 # Copyright 2013 OpenStack Foundation.
 # Copyright 2013 Hewlett-Packard Development Company, L.P.
 #

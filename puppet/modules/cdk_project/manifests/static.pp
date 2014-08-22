@@ -25,7 +25,7 @@ class cdk_project::static (
   # }->
 
   #include openstack_project
-  # class { 'jenkins::jenkinsuser':
+  # class { 'jenkins_config::jenkinsuser':
     # ssh_key => "",
   # }
 
