@@ -16,17 +16,19 @@
 #
 define lodgeit_config::site(
   $port,
-  $vhost_name   ="paste.${name}.org",
-  $image        ='', # was header-bg2.png
-  $image_source = '', # was puppet:///modules/logedit/header-bg2.png
+  $vhost_name    = "paste.${name}.org",
+  $image         = '', # was header-bg2.png
+  $image_source  = '', # was puppet:///modules/logedit/header-bg2.png
+  $serveraliases = '',
   ) {
 
   include apache
 
   apache::vhost::proxy { $vhost_name:
-    port    => 80,
-    dest    => "http://localhost:${port}",
-    require => File["/srv/lodgeit/${name}"],
+    port          => 80,
+    dest          => "http://localhost:${port}",
+    serveraliases => $serveraliases,
+    require       => File["/srv/lodgeit/${name}"],
   }
 
   file { "/etc/init/${name}-paste.conf":

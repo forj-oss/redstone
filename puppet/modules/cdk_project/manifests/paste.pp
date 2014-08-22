@@ -21,7 +21,8 @@ class cdk_project::paste (
   $sysadmins      = hiera('cdk_project::paste::sysadmins'         ,[]),
   $site_name      = hiera('cdk_project::paste::site_name'         ,'cdkdev'),
   $image_name     = hiera('cdk_project::paste::image_name'        ,'header-bg2.png'),
-  $image_source   = hiera('cdk_project::paste::image_source'      ,'puppet:///lodgeit/header-bg2.png')
+  $image_source   = hiera('cdk_project::paste::image_source'      ,'puppet:///lodgeit/header-bg2.png'),
+  $serveraliases  = hiera('cdk_project::paste::serveraliases'     ,''),
 ) {
   require maestro::node_vhost_lookup
   include lodgeit
@@ -32,12 +33,14 @@ class cdk_project::paste (
       image           => $image_name,
       image_source    => $image_source,
       vhost_name      => $vhost_name,
+      serveraliases   => $serveraliases,
     }
   } else {
     lodgeit_config::site { $site_name:
       port            => '5000',
       image           => $image_name,
       image_source    => $image_source,
+      serveraliases   => $serveraliases,
     }
   }
 
