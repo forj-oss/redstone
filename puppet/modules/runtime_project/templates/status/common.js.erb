@@ -25,7 +25,7 @@ function header(activeTabName) {
   document.write(
    '<div id="header" class="container">'+
    '<div class="span-5">'+
-   ' <h1><a href="<%= scope.lookupvar("cdk_project::status::static_url") %>/"><img src="title.png" style="padding-bottom: 10px; margin-left: 10px;"/></a></h1>'+
+   ' <h1><a href="<%= scope.lookupvar("cdk_project::status::static_url") %>/"><img src="<%= scope.lookupvar("cdk_project::status::static_url") %>/title.png" style="padding-bottom: 10px; margin-left: 10px;"/></a></h1>'+
    '</div>\n'+
    '<div class="span-19 last blueLine">'+
    '<div id="navigation" class="span-19">'+
@@ -90,4 +90,3 @@ function footer() {
 //  '</div>'+
   '</div>')
 }
-
