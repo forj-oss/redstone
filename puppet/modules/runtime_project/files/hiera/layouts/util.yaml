@@ -35,6 +35,7 @@ cdk_project::status::vhost_name:                  "%{::maestro::node_vhost_looku
 cdk_project::status::graphite_url:                "http://%{::maestro::node_vhost_lookup::vname}:8081"
 cdk_project::status::static_url:                  "http://%{::maestro::node_vhost_lookup::vname}:8080"
 cdk_project::status::maestro_url:                 "http://%{::eroip}"
+cdk_project::status::logo:                        "puppet:///modules/openstack_project/openstack.png"
 
 # 'graphite' tool
 cdk_project::graphite::vhost_name:                "%{::maestro::node_vhost_lookup::vname}"

@@ -31,6 +31,7 @@ class cdk_project::status (
   $zuul_server                      = hiera('cdk_project::status::zuul_server'                         ,''),
   $graphite_url                     = hiera('cdk_project::status::graphite_url'                        ,"http://${::fqdn}:8081"),
   $static_url                       = hiera('cdk_project::status::static_url'                          ,"http://${::fqdn}:8080"),
+  $logo                             = hiera('cdk_project::status::logo'                                ,'puppet:///modules/openstack_project/openstack.png'),
 ) {
   require maestro::node_vhost_lookup
   $maestro_url = join(['http://',read_json('puppet','tool_url',$::json_config_location,true)])
@@ -99,6 +100,12 @@ class cdk_project::status (
       file { '/srv/static/status/favicon.ico':
         ensure  => present,
         source  => 'puppet:///modules/openstack_project/status/favicon.ico',
+        require => File['/srv/static/status'],
+      }
+
+      file { '/srv/static/status/title.png':
+        ensure  => present,
+        source  => $logo,
         require => File['/srv/static/status'],
       }
 
