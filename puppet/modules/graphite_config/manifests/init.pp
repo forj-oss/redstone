@@ -21,6 +21,10 @@ class graphite_config(
   $graphite_admin_user = '',
   $graphite_admin_email = '',
   $graphite_admin_password = '',
+  $graphite_revision = '7f8c33da809e2938df55c1ff57ab5329d8d7b878',
+  $carbon_revision = '0.9.x',
+  $whisper_revision = 'master',
+  $statsd_revision = 'master',
 ) {
   $packages = [ 'python-django',
                 'python-django-tagging',
@@ -39,7 +43,7 @@ class graphite_config(
     provider => git,
     # revision => '0.9.x',
     # pin version because of https://github.com/graphite-project/graphite-web/issues/650
-    revision => '7f8c33da809e2938df55c1ff57ab5329d8d7b878',
+    revision => $graphite_revision,
     source   => 'https://github.com/graphite-project/graphite-web.git',
   }
 
@@ -52,10 +56,17 @@ class graphite_config(
                     File['/var/lib/graphite/storage']]
   }
 
+  exec {'Install django 1.4':
+    command     => 'pip install django==1.4',
+    path        => '/usr/local/bin:/usr/bin:/bin',
+    require     => Exec['install_graphite_web'],
+    onlyif      => 'django-admin --version | grep -v 1.4',
+  }
+
   vcsrepo { '/opt/carbon':
     ensure   => latest,
     provider => git,
-    revision => '0.9.x',
+    revision => $carbon_revision,
     source   => 'https://github.com/graphite-project/carbon.git',
   }
 
@@ -71,7 +82,7 @@ class graphite_config(
   vcsrepo { '/opt/whisper':
     ensure   => latest,
     provider => git,
-    revision => 'master',
+    revision => $whisper_revision,
     source   => 'https://github.com/graphite-project/whisper.git',
   }
 
@@ -123,7 +134,7 @@ class graphite_config(
     command => 'python /usr/local/bin/graphite-init-db.py /etc/graphite/admin.ini',
     cwd     => '/usr/local/lib/python2.7/dist-packages/graphite',
     path    => '/bin:/usr/bin',
-    onlyif  => 'test ! -f /var/lib/graphite/storage/graphite.db',
+    #onlyif  => 'test ! -f /var/lib/graphite/storage/graphite.db',
     require => [ Exec['install_graphite_web'],
       File['/var/lib/graphite'],
       Package['apache2'],
@@ -142,6 +153,7 @@ class graphite_config(
   vcsrepo { '/opt/statsd':
     ensure   => latest,
     provider => git,
+    revision => $statsd_revision,
     source   => 'https://github.com/etsy/statsd.git',
   }
 
@@ -197,6 +209,7 @@ class graphite_config(
     owner   => 'www-data',
     group   => 'www-data',
     content => template('graphite/admin.ini'),
+    replace => true,
     require => [ File['/etc/graphite'],
       Package['apache2']],
   }
@@ -233,6 +246,4 @@ class graphite_config(
                     File['/etc/statsd/config.js'],
                     Vcsrepo['/opt/statsd']],
   }
-
 }
-
