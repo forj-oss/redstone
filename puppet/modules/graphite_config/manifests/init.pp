@@ -128,19 +128,30 @@ class graphite_config(
   file { '/etc/graphite':
     ensure  => directory,
   }
+  if $graphite_admin_user != undef and $graphite_admin_user != '' {
+    file { '/etc/graphite/admin.ini':
+      mode    => '0400',
+      owner   => 'www-data',
+      group   => 'www-data',
+      content => template('graphite/admin.ini'),
+      replace => true,
+      require => [ File['/etc/graphite'],
+        Package['apache2']],
+    }
 
-  exec { 'graphite_sync_db':
-    user    => 'www-data',
-    command => 'python /usr/local/bin/graphite-init-db.py /etc/graphite/admin.ini',
-    cwd     => '/usr/local/lib/python2.7/dist-packages/graphite',
-    path    => '/bin:/usr/bin',
-    #onlyif  => 'test ! -f /var/lib/graphite/storage/graphite.db',
-    require => [ Exec['install_graphite_web'],
-      File['/var/lib/graphite'],
-      Package['apache2'],
-      File['/usr/local/lib/python2.7/dist-packages/graphite/local_settings.py'],
-      File['/usr/local/bin/graphite-init-db.py'],
-      File['/etc/graphite/admin.ini']],
+    exec { 'graphite_sync_db':
+      user    => 'www-data',
+      command => 'python /usr/local/bin/graphite-init-db.py /etc/graphite/admin.ini',
+      cwd     => '/usr/local/lib/python2.7/dist-packages/graphite',
+      path    => '/bin:/usr/bin',
+      #onlyif  => 'test ! -f /var/lib/graphite/storage/graphite.db',
+      require => [ Exec['install_graphite_web'],
+        File['/var/lib/graphite'],
+        Package['apache2'],
+        File['/usr/local/lib/python2.7/dist-packages/graphite/local_settings.py'],
+        File['/usr/local/bin/graphite-init-db.py'],
+        File['/etc/graphite/admin.ini']],
+    }
   }
 
   apache::vhost { $vhost_name:
@@ -202,16 +213,6 @@ class graphite_config(
   file { '/usr/local/bin/graphite-init-db.py':
     mode   => '0555',
     source => 'puppet:///modules/graphite/graphite-init-db.py'
-  }
-
-  file { '/etc/graphite/admin.ini':
-    mode    => '0400',
-    owner   => 'www-data',
-    group   => 'www-data',
-    content => template('graphite/admin.ini'),
-    replace => true,
-    require => [ File['/etc/graphite'],
-      Package['apache2']],
   }
 
   file { '/etc/init.d/carbon-cache':
