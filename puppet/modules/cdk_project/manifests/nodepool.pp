@@ -1,7 +1,4 @@
 # Copyright 2013 Hewlett-Packard Development Company, L.P.
-# Copyright 2012 Antoine "hashar" Musso
-# Copyright 2012 Wikimedia Foundation Inc.
-# Copyright 2013 OpenStack Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -14,187 +11,68 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 # == Class: cdk_project::nodepool
 #
-class cdk_project::nodepool (
-  $mysql_password            = hiera('cdk_project::nodepool::mysql_password'          ,''),
-  $mysql_root_password       = hiera('cdk_project::nodepool::mysql_root_password'     ,''),
-  $nodepool_ssh_private_key  = hiera('cdk_project::nodepool::nodepool_ssh_private_key',''),
-  $git_source_repo           = 'https://git.openstack.org/openstack-infra/nodepool',
-  $revision                  = 'master',
-  $statsd_host               = '',
-  $vhost_name                = hiera('cdk_project::nodepool::vhost_name'              ,$::fqdn),
-  $image_log_document_root   = '/var/log/nodepool/image',
-  $enable_image_log_via_http = hiera('cdk_project::nodepool::image_log_via_http',false),
-  $environment               = {},
+class cdk_project::nodepool(
+  $vhost_name                       = hiera('cdk_project::nodepool::vhost_name'                       , $::fqdn),
+  $mysql_password                   = hiera('cdk_project::nodepool::mysql_password'                   , ''),
+  $mysql_root_password              = hiera('cdk_project::nodepool::mysql_root_password'              , ''),
+  $nodepool_ssh_private_key         = hiera('cdk_project::nodepool::nodepool_ssh_private_key'         , ''),
+  $nodepool_template                = hiera('cdk_project::nodepool::nodepool_template'                , 'nodepool.yaml.erb'),
+  $sysadmins                        = hiera('cdk_project::nodepool::sysadmins'                        , []),
+  $statsd_host                      = hiera('cdk_project::nodepool::statsd_host'                      , ''),
+  $jenkins_api_user                 = hiera('cdk_project::nodepool::jenkins_api_user'                 , ''),
+  $jenkins_api_key                  = hiera('cdk_project::nodepool::jenkins_api_key'                  , ''),
+  $jenkins_credentials_id           = hiera('cdk_project::nodepool::jenkins_credentials_id'           , ''),
+  $rackspace_username               = hiera('cdk_project::nodepool::rackspace_username'               , ''),
+  $rackspace_password               = hiera('cdk_project::nodepool::rackspace_password'               , ''),
+  $rackspace_project                = hiera('cdk_project::nodepool::rackspace_project'                , ''),
+  $hpcloud_username                 = hiera('cdk_project::nodepool::hpcloud_username'                 , ''),
+  $hpcloud_password                 = hiera('cdk_project::nodepool::hpcloud_password'                 , ''),
+  $hpcloud_project                  = hiera('cdk_project::nodepool::hpcloud_project'                  , ''),
+  $tripleo_username                 = hiera('cdk_project::nodepool::tripleo_username'                 , ''),
+  $tripleo_password                 = hiera('cdk_project::nodepool::tripleo_password'                 , ''),
+  $tripleo_project                  = hiera('cdk_project::nodepool::tripleo_project'                  , ''),
+  $image_log_document_root          = hiera('cdk_project::nodepool::image_log_document_root'          , '/var/log/nodepool/image'),
+  $enable_image_log_via_http        = hiera('cdk_project::nodepool::image_log_via_http'               , false),
 ) {
+#  class { 'openstack_project::server':
+#    sysadmins                 => $sysadmins,
+#    iptables_public_tcp_ports => [80],
+#  }
 
-  class { 'mysql::server':
-    config_hash => {
-      'root_password'  => $mysql_root_password,
-      'default_engine' => 'InnoDB',
-      'bind_address'   => '127.0.0.1',
-    }
+  class { '::nodepool':
+    vhost_name                => $vhost_name,
+    mysql_root_password       => $mysql_root_password,
+    mysql_password            => $mysql_password,
+    nodepool_ssh_private_key  => $nodepool_ssh_private_key,
+    statsd_host               => $statsd_host,
+    image_log_document_root   => $image_log_document_root,
+    enable_image_log_via_http => $enable_image_log_via_http,
   }
 
-  include mysql::server::account_security
-  include mysql::python
-
-  mysql::db { 'nodepool':
-    user     => 'nodepool',
-    password => $mysql_password,
-    host     => 'localhost',
-    grant    => ['all'],
-    charset  => 'utf8',
-    require  => [
-      Class['mysql::server'],
-      Class['mysql::server::account_security'],
+  file { '/etc/nodepool/nodepool.yaml':
+    ensure  => present,
+    owner   => 'nodepool',
+    group   => 'root',
+    mode    => '0400',
+    content => template("runtime_project/nodepool/${nodepool_template}"),
+    require => [
+      File['/etc/nodepool'],
+      User['nodepool'],
     ],
   }
 
-  file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
-  }
-
-  user { 'nodepool':
-    ensure     => present,
-    home       => '/home/nodepool',
-    shell      => '/bin/bash',
-    gid        => 'nodepool',
-    managehome => true,
-    require    => Group['nodepool'],
-  }
-
-  group { 'nodepool':
-    ensure => present,
-  }
-
-  vcsrepo { '/opt/nodepool':
-    ensure   => latest,
-    provider => git,
-    revision => $revision,
-    source   => $git_source_repo,
-  }
-
-  include pip
-  exec { 'install_novaclient' :
-    command     => 'pip install -U \'python-novaclient==2.18.1\'',
-    path        => '/usr/local/bin:/usr/bin:/bin/',
-    refreshonly => true,
-    require     => Class['pip'],
-  }
-  exec { 'install_nodepool' :
-    command     => 'pip install /opt/nodepool',
-    path        => '/usr/local/bin:/usr/bin:/bin/',
-    refreshonly => true,
-    subscribe   => Vcsrepo['/opt/nodepool'],
-    require     => Class['pip'],
-  }
-
-  file { '/etc/nodepool':
-    ensure => directory,
-  }
-
-  file { '/etc/default/nodepool':
-    ensure  => present,
-    content => template('cdk_project/nodepool.default.erb'),
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
-  }
-
-  file { '/var/log/nodepool':
+  file { '/etc/nodepool/scripts':
     ensure  => directory,
+    owner   => 'root',
+    group   => 'root',
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    recurse => true,
+    purge   => true,
+    force   => true,
+    require => File['/etc/nodepool'],
+    source  => 'puppet:///modules/runtime_project/nodepool/scripts',
   }
 
-  file { '/var/run/nodepool':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  file { '/home/nodepool/.ssh':
-    ensure  => directory,
-    mode    => '0500',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  file { '/home/nodepool/.ssh/id_rsa':
-    ensure  => present,
-    content => $nodepool_ssh_private_key,
-    mode    => '0400',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => File['/home/nodepool/.ssh'],
-  }
-
-  file { '/home/nodepool/.ssh/config':
-    ensure  => present,
-    source  => 'puppet:///modules/cdk_project/nodepool/ssh.config',
-    mode    => '0440',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => File['/home/nodepool/.ssh'],
-  }
-
-  file { '/etc/nodepool/logging.conf':
-    ensure  => present,
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
-    content => template('cdk_project/nodepool.logging.conf.erb'),
-    notify  => Service['nodepool'],
-  }
-
-  file { '/etc/init.d/nodepool':
-    ensure => present,
-    mode   => '0555',
-    owner  => 'root',
-    group  => 'root',
-    source => 'puppet:///modules/cdk_project/nodepool/nodepool.init',
-  }
-
-  service { 'nodepool':
-    name       => 'nodepool',
-    enable     => true,
-    hasrestart => true,
-    require    => File['/etc/init.d/nodepool'],
-  }
-
-  if $enable_image_log_via_http == true {
-    # Setup apache for image log access
-    include apache
-
-    apache::vhost { $vhost_name:
-      port     => 80,
-      priority => '50',
-      docroot  => $image_log_document_root,
-    }
-
-    if $image_log_document_root != '/var/log/nodepool' {
-      file { $image_log_document_root:
-        ensure   => directory,
-        mode     => '0755',
-        owner    => 'nodepool',
-        group    => 'nodepool',
-        require  => [
-          User['nodepool'],
-          File['/var/log/nodepool'],
-        ],
-      }
-    }
-  }
 }

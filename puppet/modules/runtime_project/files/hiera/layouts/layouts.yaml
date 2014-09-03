@@ -99,7 +99,7 @@ jimador::discover:
     category: 'dev'
     dname: 'Nodepool Status'
     desc: 'Provide Nodepool logs.'
-    icon: true
+    icon: false
     visible: true
 
 # setup parameters for puppet class on all nodes, superseeds maestro.yaml settings.
