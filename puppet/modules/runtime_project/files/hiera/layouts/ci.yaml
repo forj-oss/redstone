@@ -92,7 +92,7 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
 # Enable in case of enable nodepool
 #sysadmin_config::manage_servers::iptables_rules4:
 #  tool: "nodepool"
-#  format_rule: '-m state --state NEW -m tcp -p tcp --dport 8888 -s \1 -j ACCEP'
+#  format_rule: '-m state --state NEW -m tcp -p tcp --dport 8888 -s \1 -j ACCEPT'
 
 # Tool status
 maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/ci/toolstatus.sh'

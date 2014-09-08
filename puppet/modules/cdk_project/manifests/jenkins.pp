@@ -157,10 +157,9 @@ class cdk_project::jenkins (
     jenkins_config::plugin { 'postbuild-task':
       version => '1.8',
     }
-  #  TODO(clarkb): release
-  #  jenkins_config::plugin { 'zmq-event-publisher':
-  #    version => '1.0',
-  #  }
+    jenkins_config::plugin { 'zmq-event-publisher':
+      version => '0.0.3',
+    }
     jenkins_config::plugin { 'jclouds-jenkins':
       version => '2.3.1',
     }

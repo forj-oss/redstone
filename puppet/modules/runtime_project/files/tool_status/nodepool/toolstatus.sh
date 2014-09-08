@@ -22,7 +22,7 @@
 
 RETVAL=1
 
-jenkins() {
+nodepool() {
   sudo -i service nodepool status > /dev/null 2>&1
   RETVAL=$?
   echo $RETVAL
