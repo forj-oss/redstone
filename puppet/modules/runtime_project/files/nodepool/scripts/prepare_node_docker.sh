@@ -18,10 +18,10 @@
 # Test install:
 # curl https://raw.githubusercontent.com/forj-oss/redstone/master/puppet/modules/runtime_project/files/nodepool/scripts/prepare_node_docker.sh | bash -xe
 [ -z $PROJECTS_YAML ] && echo "INFO: using forj-config project for projects.yaml"
-PREPARE_HOSTNAME=${PREPARE_HOSTNAME:-node-test}
-PROJECT_EXCLUDE_REGX=${PROJECT_EXCLUDE_REGX:-(CDK-.*|forj/infra|forj-ui/forj.csa|forj-config)}
-GIT_HOME=${GIT_HOME:-~/prepare/git}
-REVIEW_SERVER=${REVIEW_SERVER:-https://review.forj.io}
+export PREPARE_HOSTNAME=${PREPARE_HOSTNAME:-node-test}
+export PROJECT_EXCLUDE_REGX=${PROJECT_EXCLUDE_REGX:-(CDK-.*|forj/infra|forj-ui/forj.csa|forj-config)}
+export GIT_HOME=${GIT_HOME:-~/prepare/git}
+export REVIEW_SERVER=${REVIEW_SERVER:-https://review.forj.io}
 export DEBUG=${DEBUG:-0}
 export AS_ROOT=${AS_ROOT:-0}
 export SCRIPT_TEMP=$(mktemp -d)
@@ -29,6 +29,9 @@ trap 'rm -rf $SCRIPT_TEMP' EXIT
 
 [ $DEBUG -eq 1 ] && set -x -v
 
+#
+# function to trap an error and exit
+#
 function ERROR_EXIT {
   _line="$1"
   _errm="$2"
@@ -42,6 +45,10 @@ function ERROR_EXIT {
 }
 trap 'ERROR_EXIT ${LINENO}' ERR
 
+#
+# run a sudo command if the script is not run as root
+# otherwise run the command, assume we're root
+#
 function DO_SUDO {
   if [ $AS_ROOT -eq 0 ] ; then
     sudo "$@"
@@ -50,6 +57,9 @@ function DO_SUDO {
   fi
 }
 
+#
+# clone or update a project repo based on REVIEW_SERVER and GIT_HOME
+#
 function GIT_CLONE {
   [ -z $1 ] && ERROR_EXIT  ${LINENO} "GIT_CLONE requires repo name" 2
   [ -z $REVIEW_SERVER ] && ERROR_EXIT  ${LINENO} "GIT_CLONE requires REVIEW_SERVER" 2
@@ -65,6 +75,28 @@ function GIT_CLONE {
   return 0
 }
 
+#
+# build a docker image with specified docker file
+# use DOCKER_HOME as the docker build context
+# <Dockerfile Name>  <image name>
+#
+function DOCKER_BUILD {
+  [ -z "${1}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 1st argument, the docker file name in DOCKER_HOME." 2
+  [ -z "${2}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 2nd argument, the docker image name." 2
+  [ -z "${DOCKER_HOME}" ] && ERROR_EXIT  ${LINENO} "no DOCKER_HOME defined" 2
+  # workaround to error:
+  # Get http:///var/run/docker.sock/v1.14/info: dial unix /var/run/docker.sock: permission denied
+  puppet docker info>/dev/null 2<&1 || newgrp docker
+  _CWD=$(pwd)
+  cd "${DOCKER_HOME}"
+  [ -f Dockerfile ] && rm -f Dockerfile
+  ln -s "$1" Dockerfile
+  docker build -t "${2}" "${DOCKER_HOME}"
+  if ! docker images --no-trunc | grep -e "^${2}\s.*" ; then
+    ERROR_EXIT ${LINENO} "${2} image not found." 2
+  fi
+  cd "${_CWD}"
+}
 
 # prepare a node with docker installed
 # * we need puppet commandline setup, along with expected modules
@@ -90,6 +122,7 @@ DO_SUDO apt-get update
 DO_SUDO DEBIAN_FRONTEND=noninteractive apt-get --option 'Dpkg::Options::=--force-confold' \
         --assume-yes install -y --force-yes git vim curl wget python-all-dev
 mkdir -p "$GIT_HOME"
+export GIT_HOME=$(readlink -f "${GIT_HOME}")
 
 #
 # clone all repos
@@ -119,7 +152,7 @@ DO_SUDO bash -xe $SCRIPT_TEMP/install_modules.sh
 #
 # install docker
 PUPPET_MODULES=$GIT_HOME/forj-config/modules:$GIT_HOME/forj-oss/maestro/puppet/modules:/etc/puppet/modules
-[ $DEBUG -eq 1 ] && PUPPET_DEBUG="--verbose --debug"
+[ $DEBUG -eq 1 ] && export PUPPET_DEBUG="--verbose --debug"
 DO_SUDO puppet apply $PUPPET_DEBUG --modulepath=$PUPPET_MODULES -e 'include docker_wrap::requirements'
 
 # current user should be given docker privs
@@ -129,12 +162,20 @@ DO_SUDO puppet apply $PUPPET_DEBUG -e 'user {'"'${CURRENT_USER}'"': ensure => pr
 
 # build a docker image bare_precise_puppet
 # This docker image should have puppet and required modules installed.
+export DOCKER_HOME=$(readlink -f $GIT_HOME)
+[ ! -d "${DOCKER_HOME}" ] && mkdir -p "${DOCKER_HOME}"
+
+# 
+# placing the docker files inline so this script can be self contained.
 # ********** START DOCKER FILE PRECISE ****************************************
-cat > $GIT_HOME/Dockerfile << DOCKER_BARE_PRECISE
+cat > $DOCKER_HOME/Dockerfile.precise << DOCKER_BARE_PRECISE
 # DOCKER-VERSION 0.3.4
 # build a puppet based image
 FROM  ubuntu:12.04
+WORKDIR ${GIT_HOME}
 ADD . /opt/git
+RUN ls -altr /opt/git
+RUN df -k
 # Setup Minimal running system
 RUN apt-get -y update; \
     apt-get -y upgrade; \
@@ -143,15 +184,34 @@ RUN apt-get -y update; \
 RUN git config --global http.sslverify false
 RUN bash -xe /opt/git/forj-oss/maestro/puppet/install_puppet.sh 
 RUN bash -xe /opt/git/forj-oss/maestro/puppet/install_modules.sh
+RUN lsb_release -a
 DOCKER_BARE_PRECISE
 # ********** END DOCKER FILE PRECISE *******************************************
 
+# ********** START DOCKER FILE TRUSTY ****************************************
+cat > $DOCKER_HOME/Dockerfile.trusty << DOCKER_BARE_TRUSTY
+# DOCKER-VERSION 0.3.4
+# build a puppet based image
+FROM  ubuntu:14.04
+ADD . /opt/git
+RUN ls -altr /opt/git
+RUN df -k
+# Setup Minimal running system
+RUN apt-get -y update; \
+    apt-get -y upgrade; \
+    DEBIAN_FRONTEND=noninteractive apt-get --option 'Dpkg::Options::=--force-confold' \
+        --assume-yes install -y --force-yes ntpdate git vim curl wget python-all-dev;
+RUN git config --global http.sslverify false
+RUN PUPPET_VERSION=3 bash -xe /opt/git/forj-oss/maestro/puppet/install_puppet.sh 
+RUN bash -xe /opt/git/forj-oss/maestro/puppet/install_modules.sh
+RUN lsb_release -a
+DOCKER_BARE_TRUSTY
+# ********** END DOCKER FILE TRUSTY *******************************************
+
 #
 # build an image for this prepare
-docker build -t ubuntu-bare-precise $GIT_HOME
-if ! docker images --no-trunc | grep -e '^ubuntu-bare-precise\s.*' ; then
-  ERROR_EXIT ${LINENO} "ubuntu-bare-precise image not found." 2
-fi
+DOCKER_BUILD Dockerfile.precise ubuntu-bare-precise
+DOCKER_BUILD Dockerfile.trusty ubuntu-bare-trusty
 
 # setup beaker
 DO_SUDO puppet apply $PUPPET_DEBUG \
