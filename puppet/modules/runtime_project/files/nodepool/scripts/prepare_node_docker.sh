@@ -65,12 +65,21 @@ function GIT_CLONE {
   [ -z $REVIEW_SERVER ] && ERROR_EXIT  ${LINENO} "GIT_CLONE requires REVIEW_SERVER" 2
   [ -z $GIT_HOME ] && ERROR_EXIT  ${LINENO} "no GIT_HOME defined" 2
   git config --global http.sslverify false
-  [ ! -d $GIT_HOME/$1/.git ] && git clone --depth=1 $REVIEW_SERVER/p/$1 $GIT_HOME/$1
+  if [ ! -d $GIT_HOME/$1/.git ] ; then
+    if ! git clone --depth=1 $REVIEW_SERVER/p/$1 $GIT_HOME/$1 ; then
+      echo "Retrying clone operation on $REVIEW_SERVER/p/$1"
+      git clone --depth=1 $REVIEW_SERVER/p/$1 $GIT_HOME/$1
+    fi
+  fi
   _CWD=$(pwd)
   cd $GIT_HOME/$1
   git branch -a > /dev/null 2<&1
   git reset --hard HEAD
   git remote update
+  if ! git remote update ; then
+    echo "Retrying remote update operation on $GIT_HOME/$1"
+    git remote update
+  fi
   cd $_CWD
   return 0
 }
@@ -84,15 +93,18 @@ function DOCKER_BUILD {
   [ -z "${1}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 1st argument, the docker file name in DOCKER_HOME." 2
   [ -z "${2}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 2nd argument, the docker image name." 2
   [ -z "${DOCKER_HOME}" ] && ERROR_EXIT  ${LINENO} "no DOCKER_HOME defined" 2
+  # use sg
   # workaround to error:
   # Get http:///var/run/docker.sock/v1.14/info: dial unix /var/run/docker.sock: permission denied
-  puppet docker info>/dev/null 2<&1 || newgrp docker
   _CWD=$(pwd)
   cd "${DOCKER_HOME}"
   [ -f Dockerfile ] && rm -f Dockerfile
   ln -s "$1" Dockerfile
-  docker build -t "${2}" "${DOCKER_HOME}"
-  if ! docker images --no-trunc | grep -e "^${2}\s.*" ; then
+  if ! groups | grep docker > /dev/null 2<&1 ; then
+    ERROR_EXIT ${LINENO} "The current user is not a member of the docker group" 2
+  fi
+  sg docker -c "docker build -t '${2}' '${DOCKER_HOME}'"
+  if ! sg docker -c "docker images --no-trunc | grep -e '^${2}\s.*'" ; then
     ERROR_EXIT ${LINENO} "${2} image not found." 2
   fi
   cd "${_CWD}"
@@ -146,14 +158,18 @@ DO_SUDO bash -xe $GIT_HOME/forj-oss/maestro/puppet/install_modules.sh
 cp $GIT_HOME/forj-oss/maestro/puppet/install_modules.sh $SCRIPT_TEMP/install_modules.sh
 cat > $SCRIPT_TEMP/modules.env << MODULES
 unset DEFAULT_MODULES
-MODULES["garethr/docker"]="0.13.0"
+MODULES["garethr/docker"]="1.2.2"
 MODULES
 DO_SUDO bash -xe $SCRIPT_TEMP/install_modules.sh
 #
 # install docker
 PUPPET_MODULES=$GIT_HOME/forj-config/modules:$GIT_HOME/forj-oss/maestro/puppet/modules:/etc/puppet/modules
 [ $DEBUG -eq 1 ] && export PUPPET_DEBUG="--verbose --debug"
-DO_SUDO puppet apply $PUPPET_DEBUG --modulepath=$PUPPET_MODULES -e 'include docker_wrap::requirements'
+DO_SUDO puppet apply $PUPPET_DEBUG --modulepath=$PUPPET_MODULES -e "include docker
+                                                                    docker::image { 'ubuntu':
+                                                                                    image_tag => 'precise'
+                                                                                  }
+                                                                   "
 
 # current user should be given docker privs
 CURRENT_USER=$(facter id)
@@ -165,7 +181,7 @@ DO_SUDO puppet apply $PUPPET_DEBUG -e 'user {'"'${CURRENT_USER}'"': ensure => pr
 export DOCKER_HOME=$(readlink -f $GIT_HOME)
 [ ! -d "${DOCKER_HOME}" ] && mkdir -p "${DOCKER_HOME}"
 
-# 
+#
 # placing the docker files inline so this script can be self contained.
 # ********** START DOCKER FILE PRECISE ****************************************
 cat > $DOCKER_HOME/Dockerfile.precise << DOCKER_BARE_PRECISE
