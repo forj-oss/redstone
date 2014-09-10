@@ -184,6 +184,7 @@ RUN apt-get -y update; \
 RUN git config --global http.sslverify false
 RUN bash -xe /opt/git/forj-oss/maestro/puppet/install_puppet.sh 
 RUN bash -xe /opt/git/forj-oss/maestro/puppet/install_modules.sh
+RUN bash -xe /opt/git/forj-oss/maestro/hiera/hiera.sh
 RUN lsb_release -a
 DOCKER_BARE_PRECISE
 # ********** END DOCKER FILE PRECISE *******************************************
