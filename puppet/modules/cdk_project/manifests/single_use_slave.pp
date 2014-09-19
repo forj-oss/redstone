@@ -19,25 +19,25 @@
 class cdk_project::single_use_slave (
   $certname = $::fqdn,
   $install_users = false,
-  $install_resolv_conf = true,
+  #$install_resolv_conf = true,
   $sudo = false,
   $thin = true,
   $python3 = false,
   $include_pypy = false,
-  $automatic_upgrades = false,
+  #$automatic_upgrades = false,
   $all_mysql_privs = false,
-  $enable_unbound = true,
+  #$enable_unbound = true,
   $ssh_key = '',
   $bare = false,
   $user = true,
   $do_fortify = false,
 ){
-  class { 'openstack_project::template':
+  class { 'sysadmin_config::servers':
     certname            => $certname,
-    automatic_upgrades  => $automatic_upgrades,
+    #automatic_upgrades  => $automatic_upgrades,
     install_users       => false,
-    install_resolv_conf => $install_resolv_conf,
-    enable_unbound      => $enable_unbound,
+    #install_resolv_conf => $install_resolv_conf,
+    #enable_unbound      => $enable_unbound,
     iptables_rules4     =>
       [
         # Ports 69 and 6385 allow to allow ironic VM nodes to reach tftp and
