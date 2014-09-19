@@ -62,22 +62,18 @@ class jenkins_config::slave(
   # https://lists.launchpad.net/openstack/msg13381.html
   # NOTE(dprince): ubuntu only as RHEL6 doesn't have sysctl.d yet
   if ($::osfamily == 'Debian') {
-    if ! defined(File['/etc/sysctl.d/10-ptrace.conf']) {
-      file { '/etc/sysctl.d/10-ptrace.conf':
-        ensure => present,
-        source => 'puppet:///modules/jenkins/10-ptrace.conf',
-        owner  => 'root',
-        group  => 'root',
-        mode   => '0444',
-      }
+    file { '/etc/sysctl.d/10-ptrace.conf':
+      ensure => present,
+      source => 'puppet:///modules/jenkins/10-ptrace.conf',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0444',
     }
 
-    if ! defined(Exec['ptrace sysctl']) {
-      exec { 'ptrace sysctl':
-        subscribe   => File['/etc/sysctl.d/10-ptrace.conf'],
-        refreshonly => true,
-        command     => '/sbin/sysctl -p /etc/sysctl.d/10-ptrace.conf',
-      }
+    exec { 'ptrace sysctl':
+      subscribe   => File['/etc/sysctl.d/10-ptrace.conf'],
+      refreshonly => true,
+      command     => '/sbin/sysctl -p /etc/sysctl.d/10-ptrace.conf',
     }
   }
 }

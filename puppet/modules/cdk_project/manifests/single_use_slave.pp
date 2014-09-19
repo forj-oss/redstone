@@ -61,15 +61,4 @@ class cdk_project::single_use_slave (
     do_fortify      => $do_fortify,
   }
 
-  class { 'openstack_project::slave_common':
-    include_pypy    => $include_pypy,
-    sudo            => $sudo,
-  }
-
-  if (! $thin) {
-    class { 'openstack_project::thick_slave':
-      all_mysql_privs => $all_mysql_privs,
-    }
-  }
-
 }
