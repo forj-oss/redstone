@@ -1,0 +1,24 @@
+- job-template:
+    name: '{name}-fortify-scan'
+
+    builders:
+      - maven-package:
+          param: '-Dmaven.test.skip=true'
+
+    scm:
+     - git:
+       url: '/var/lib/zuul/git/{git_project}'
+       branches:
+         - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+    publishers:
+      - post-tasks:
+        - matches:
+            - log-text: SUCCESS
+          escalate-status: true
+          run-if-job-successful: true
+          script: |
+            #!/bin/bash -xe
+            /usr/local/bin/ff-scan.sh -d -b $WORKSPACE -t java-web

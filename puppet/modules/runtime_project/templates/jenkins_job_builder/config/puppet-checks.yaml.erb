@@ -1,0 +1,16 @@
+- job-template:
+   name: '{name}-puppet-checks'
+   disabled: false
+
+   scm:
+    - git:
+       url: '/var/lib/zuul/git/{git_project}'
+       branches:
+        - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+   builders:
+   - puppet-lint-multi:
+   - puppet-syntax:
+

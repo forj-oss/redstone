@@ -1,0 +1,51 @@
+# Copyright 2013 OpenStack Foundation.
+# Copyright 2013 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# -*- Mode: conf -*-
+
+[general]
+# only show certain projects (don't forget the openstack/ as start)
+projects = <%= projects.join(", ") %>
+
+# The Json URL where is the gerrit system.
+json_url = <%= json_url %>
+
+# Allow different mode to output to swift, by default 'combined' will
+# combined all rss in one and 'multiple' will upload all the projects
+# in each rss file.
+output_mode = <%= mode %>
+
+# username to your swift cluster
+[swift]
+# username/tenant for swift with 2.0 or just username with 1.0 (i.e:
+# RAX).
+username = <%= swift_username %>
+
+# password or api key
+password = <%= swift_password %>
+
+# container to upload (probably want to be public)
+container = <%= container %>
+
+# auth_url of the cluster, for Rackspace this is :
+# https://auth.api.rackspacecloud.com/v1.0
+# or Rackspace UK :
+# https://lon.auth.api.rackspacecloud.com/v1.0
+auth_url = <%= swift_auth_url %>
+
+# auth version (1.0 for Rackspace clouds, 2.0 for keystone backend clusters)
+auth_version = <%= auth_version %>
+
+# vim: ft=dosini

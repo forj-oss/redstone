@@ -1,0 +1,429 @@
+#!/bin/bash
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+# setup and deploy Stackato client for HP Cloud
+#   [ "#{@prop.DEBUG}" = "true" ] && set -x -v
+# set -x -v
+export doInstall=1
+
+export http_proxy_host=<%=http_proxy_host%>
+export http_proxy_port=<%=http_proxy_port%>
+_LOG=/dev/null
+#
+# Utils
+# TODO: need to investigate parameter substitution in CDA
+#
+
+
+        function checkInstalled
+        {
+            command=$1
+            $command > $_LOG 2<&1
+            return $?
+        }
+        function isWindows
+        {
+           [ "$OS" == "Windows_NT" ] && return 1
+           return 0
+        }
+        function getIP
+        {
+           if [ -z $1 ] ; then
+               echo "ERROR getIP arguments are empty"
+               exit 400
+           fi
+            EXT_SERVER=$1
+            ping_cmd=""
+            if [ "$(uname -o)" = "Cygwin" ]; then
+                pingxt=$(echo $(cygpath -u $(dirname $(echo $COMSPEC)))/ping)
+                ping_cmd="$pingxt -n 1 -4"
+                ping_str="Pinging"
+            else
+                ping_cmd="ping -W 1 -c 1"
+                ping_str="PING"
+            fi
+
+            EXT_IP=$($ping_cmd ${EXT_SERVER}|grep ${ping_str} | grep -oE  "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}")
+
+            echo $EXT_IP
+
+        }
+        function getHomeDir
+        {
+           if [ -z $1 ] ; then
+               echo "ERROR gerHomeDir arguments are empty"
+               exit 400
+           fi
+
+           home_dir=$(grep $1 /etc/passwd|awk -F':' '{print $6}')
+           if [ ! -d $home_dir ] ; then
+              echo "ERROR with finding $home_dir from /etc/passwd"
+              exit 1
+           fi
+           echo $home_dir
+        }
+        function getFullPath
+        {
+           pushd $1 > $_LOG 2<&1
+           CheckErrors $? "getFullPath: pushd failed"
+           pwd
+           CheckErrors $? "getFullPath: pwd failed"
+           popd > $_LOG 2<&1
+           CheckErrors $? "getFullPath: popd failed"
+        }
+        function CheckErrors
+        {
+          if [ ! $1 -eq 0 ] ; then
+             echo "ERROR : $2 ( $1 )"
+             exit $1
+          fi
+        }
+        function asRoot
+        {
+            if [ -z $1 ] ; then
+                if [ ! $(id -u) -eq 0 ] ; then
+                    echo "sudo"
+                fi
+            else
+                echo "sudo -u $1"
+            fi
+        }
+        function isHPProxyReachable
+        {
+
+          isReachable $http_proxy_host
+        }
+        function isReachable
+        {
+            ping_command="ping -W 1 -c 1"
+            [ $(echo $OS |grep -i "Windows" | wc -l) -gt 0 ] && ping_command="$(dirname $COMSPEC)/ping -n 1"
+            [ $(echo $OS |grep -i "Cygwin" | wc -l) -gt 0 ] && ping_command="$(dirname $COMSPEC)/ping -n 1"
+            _reachable=0
+            # check upto 5 times
+            for i in {1..5}
+            do
+               ${ping_command} $1  > $_LOG 2<&1
+               if [ $? = 0 ]; then
+                    _reachable=1
+                    break
+               fi
+            done
+
+            echo $_reachable
+        }
+        function SetProxy
+        {
+            if [[ ! -z $http_proxy_host ]] ; then
+                if [ $(isHPProxyReachable) = 1 ]; then
+                    echo Setting Proxy $http_proxy_host
+                    export http_proxy=http://$http_proxy_host:$http_proxy_port
+                    export https_proxy=https://$http_proxy_host:$http_proxy_port
+                    export HTTP_PROXY=http://$http_proxy_host:$http_proxy_port
+                    export HTTPS_PROXY=https://$http_proxy_host:$http_proxy_port
+
+                else
+                    echo Proxy not reachable - disable proxy
+                    unset http_proxy
+                    unset https_proxy
+                    unset HTTP_PROXY
+                    unset HTTPS_PROXY
+                fi
+            fi
+        }
+        function SetEnvSudoers
+        {
+                    $(asRoot) bash -c 'cat /etc/sudoers|grep env_keep |grep "http_proxy https_proxy ftp_proxy" > /dev/null 2<&1'
+                    if [ $? = 1 ]; then
+                        echo "Adding http_proxy settings to sudoers"
+                        $(asRoot) bash -c "echo Defaults env_keep += "'"\"http_proxy https_proxy ftp_proxy\""'" >> /etc/sudoers "
+                    fi
+        }
+
+        function SaveUxProxy
+        {
+            if [[ ! "$http_proxy" = "" ]]; then
+                   $(asRoot) bash -c "echo export http_proxy=$http_proxy > /etc/profile.d/proxy.sh"
+                   $(asRoot) bash -c "echo export https_proxy=$https_proxy >> /etc/profile.d/proxy.sh"
+                   $(asRoot) bash -c "echo export HTTP_PROXY=$https_proxy >> /etc/profile.d/proxy.sh"
+                   $(asRoot) bash -c "echo export HTTPS_PROXY=$https_proxy >> /etc/profile.d/proxy.sh"
+                   $(asRoot) bash -c "chmod 755 /etc/profile.d/proxy.sh"
+               else
+                   $(asRoot) bash -c "unset http_proxy > /etc/profile.d/proxy.sh"
+                 $(asRoot) bash -c "unset https_proxy >> /etc/profile.d/proxy.sh"
+                 $(asRoot) bash -c "unset HTTP_PROXY >> /etc/profile.d/proxy.sh"
+                 $(asRoot) bash -c "unset HTTPS_PROXY >> /etc/profile.d/proxy.sh"
+                 $(asRoot) bash -c "chmod 755 /etc/profile.d/proxy.sh"
+               fi
+          }
+
+        function ProxyInstall
+        {
+            SetProxy
+            SetEnvSudoers
+            SaveUxProxy
+        }
+        function DownloadFile
+        {
+               DL_URL=$1
+               DL_FILE=$2
+               if [ ! -f $DL_FILE ] ; then
+                    wget $DL_URL -O $DL_FILE > $_LOG 2<&1
+                    CheckErrors $? "Unable to retrieve download $DL_URL"
+               else
+                    echo "Using download file $DL_FILE"
+               fi
+        }
+        function ParseArgs
+        {
+            args_max=$#
+            #Args pre-req
+            #if [ "$args_max" == "0" ]; then
+            #    BuildHelp
+            #    ExitScript 1
+            #fi
+            args=("$@")
+            unset args[${#args[@]}]
+            for arg_i in $(eval echo {0..$args_max})
+            do
+                arg="${args[$arg_i]}"
+                arg_next="${args[($arg_i + 1)]}"
+                case "$arg" in
+                -u)    doInstall=0
+                        ;;
+                -novbox) DO_VBOXINSTALL=0
+                        ;;
+                esac
+            done
+            # CheckArgs
+
+        }
+#
+# Installers for OS support
+#
+        function printOS
+        {
+           isWindows
+           if [ $? -eq 1 ] ; then
+               echo "Windows"
+               return 0
+           else
+               if [ -f /etc/redhat-release ] ; then
+                   echo "RedHat"
+                   return 0
+               fi
+               cat /proc/version | grep 'Ubuntu' > $_LOG 2<&1
+               if [ $? -eq 0 ] ; then
+                    echo "Ubuntu$(uname -p)"
+                    return 0
+               fi
+           fi
+           return 1
+        }
+        function ubuntu_install_aptget
+        {
+          package_name=$1
+          no_update=$2
+          [ -z $no_update ] && no_update=0
+          (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+           if [ ! $? -eq 0 ] ; then
+                  echo "installing $package_name ... this may take a minute."
+                  [ $no_update -eq 0 ] && $(asRoot) apt-get update > $_LOG 2<&1
+                  $(asRoot) apt-get -y install $package_name > $_LOG 2<&1
+                  (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+                  CheckErrors $? " failed to install $package_name $(asRoot) apt-get -y install $package_name"
+           fi
+        }
+        function ubuntu_install_apt
+        {
+          package_name=$1
+          no_update=$2
+          [ -z $no_update ] && no_update=0
+          (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+           if [ ! $? -eq 0 ] ; then
+                  echo "installing $package_name ... this may take a minute."
+                  [ $no_update -eq 0 ] && $(asRoot) aptitude update > $_LOG 2<&1
+                  $(asRoot) aptitude -y install $package_name > $_LOG 2<&1
+                  (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+                  CheckErrors $? " failed to install $package_name $(asRoot) aptitude -y install $package_name"
+           fi
+        }
+
+        function ubuntu_install_alien
+        {
+           echo "updating alien ... "
+           ubuntu_install_aptget alien
+           ubuntu_install_aptget dpkg-dev
+           ubuntu_install_aptget debhelper
+           ubuntu_install_aptget build-essential
+
+        }
+        function ubuntu_install_deb
+        {
+          package_name=$1
+          deb_file=$2
+
+          (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+           if [ ! $? -eq 0 ] ; then
+                  echo "installing $package_name ... this may take a minute."
+                  $(asRoot) dpkg -i $deb_file
+                  (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+                  CheckErrors $? " failed to install $package_name $(asRoot) dpkg -y -i $deb_file"
+           fi
+        }
+        function ubuntu_install_rpm
+        {
+          package_name=$1
+          rpm_file=$2
+          no_update=$3
+          [ -z $no_update ] && no_update=0
+
+          (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+           if [ ! $? -eq 0 ] ; then
+                  echo "installing $package_name ... this may take a minute."
+                  ubuntu_install_alien
+                  pushd /tmp
+                  echo "converting rpm package : $rpm_file"
+                  $(asRoot) alien $rpm_file
+
+                  echo "installing : $(dirname $rpm_file)/$(basename $rpm_file "rpm").deb"
+                  $(asRoot) dpkg -y -i $(dirname $rpm_file)/$(basename $rpm_file "rpm").deb
+                  rm -f $(dirname $rpm_file)/$(basename $rpm_file "rpm").deb
+                  popd
+                  (dpkg -s $package_name | grep "Status: install ok installed") > $_LOG 2<&1
+                  CheckErrors $? " failed to install $package_name $(asRoot) dpkg -y -i $(dirname $rpm_file)/$(basename $rpm_file "rpm").deb"
+           fi
+        }
+
+
+        function rpm_install
+        {
+            package_name=$1
+            rpm_file=$2
+            no_update=$3
+            [ -z $no_update ] && no_update=0
+
+            rpm -qa|grep -i $package_name > $_LOG 2<&1
+            if [ ! $? -eq 0 ] ; then
+                $(asRoot) rpm -i $rpm_file > $_LOG 2<&1
+                rpm -qa|grep -i $package_name > $_LOG 2<&1
+                CheckErrors $? "ERROR $package_name not found"
+            else
+                echo "$package_name already installed : $(rpm -qa|grep -i $package_name) "
+            fi
+        }
+
+        function yum_install
+        {
+            package_name=$1
+            rpm -qa|grep -i $package_name > $_LOG 2<&1
+            if [ ! $? -eq 0 ] ; then
+                $(asRoot) yum -y install $package_name > $_LOG 2<&1
+                rpm -qa|grep -i $package_name > $_LOG 2<&1
+                CheckErrors $? "ERROR $package_name not found, failed to install"
+            else
+                echo "$package_name already installed : $(rpm -qa|grep -i $package_name) "
+            fi
+        }
+
+
+#
+# install requirements
+#
+function InstallRequirements
+{
+# make sure this is UX
+   if [ $(echo $OS |grep -i "Windows" | wc -l) -gt 0 ] ; then
+       echo "ERROR : this script is intended for UX"
+       exit 100
+   fi
+}
+
+
+
+#
+# Install Stackato client
+#
+function InstallStackatoClient
+{
+
+    _PROC_OS=$(printOS)
+    CheckErrors $? "ERROR : OS not Found"
+
+    [ ! -d "$SCRIPT_DIR/bundles" ] && mkdir -p $SCRIPT_DIR/bundles
+
+
+        #_DL_SITE=https://docs.hpcloud.com/file
+
+        _DL_SITE=http://nexus.cdkdev.org:8080/nexus/content/repositories/cdk-content
+        _DL_CONTENT_CLI=org/cdkdev/clis
+
+    case "$_PROC_OS" in
+                Windows)    echo "Stackato client install not implemented"
+                            return 1
+                        ;;
+                RedHat)     echo "Stackato client install not implemented"
+                            return 1
+                        ;;
+                Ubuntui686 | Ubuntuathlon | Ubuntux86_64)
+
+
+                # Defect ID 69
+                # The downloaded file most of the times was downloaded corrupted, eventually one of the downloads worked.
+                # Changed zip to be a puppet file
+                #DownloadFile http://downloads.activestate.com/stackato/client/v1.7.4/stackato-1.7.4-linux-glibc2.3-x86_64.zip $SCRIPT_DIR/stackato-1.7.4-linux-glibc2.3-x86_64.zip
+
+                #-qq quiet mode (even more quiet)
+                #-o overwrite files WITHOUT prompting
+
+                echo  "$(asRoot) /usr/bin/unzip -qq -o $SCRIPT_DIR/stackato-1.7.4-linux-glibc2.3-x86_64.zip"
+                $(asRoot) /usr/bin/unzip -qq -o /tmp/stackato-1.7.4-linux-glibc2.3-x86_64.zip -d /usr/local/bin/
+
+                echo "$(asRoot) chmod 755 /usr/local/bin/stackato"
+                $(asRoot) chmod 755 /usr/local/bin/stackato
+
+                echo "$(asRoot) chown root.root /usr/local/bin/stackato"
+                $(asRoot) chown root.root /usr/local/bin/stackato
+
+                            return 0
+                        ;;
+    esac
+
+    echo "OS NOT FOUND for InstallStackatoClient!!"
+    return 1
+
+
+
+}
+
+
+# MAIN ------------------------------------------------------------------
+# TODO: write an installer for virtualbox install on windows
+    #SCRIPT_NAME=$(basename $0)
+    SCRIPT_DIR=$(getFullPath "$(dirname $0)")
+    VERSION=""
+    ParseArgs $@
+    isWindows
+    IS_WIN=$?
+
+        # ChL: Desactivated for more central proxy settings
+        #    ProxyInstall
+    if [ $doInstall -eq 1 ] ; then
+        InstallRequirements
+        InstallStackatoClient
+    else
+        echo "Nothing to do for uninstall"
+
+    fi
+    echo "$0 is complete"
+    exit 0

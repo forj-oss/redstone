@@ -1,0 +1,134 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# generated from transformation.py script.
+# Contains general layout information for maestro.
+# designed to work with puppetmaster subnodetype
+#
+
+classes:
+  - runtime_project::install
+  - sysadmin_config::manage_servers
+# - cacerts::custom                  # user story #2189: uncomment this to enable custom cert installation
+
+# custom cert installation, additional steps when uncommenting cacerts::custom
+# If you have a custom cert to be used on any node, you can enable this feature
+# 1. setup the cert password on maestro node:
+#    cd /etc/puppet/secure;eyaml encrypt -l 'cacerts::custom::ca_pass' -s 'thepassword' | grep "cacerts::custom::ca_pass: ENC" >> /etc/puppet/hieradata/common.eyaml
+# 2. uncomment the source module that will hold all custom certs to be unpackaged.
+# cacerts::custom::source: 'puppet:///modules/custom_certs/certs'
+#
+
+# configure maestro to run our hiera_setup in runtime_project module
+hiera::data_class: 'runtime_project::hiera_setup'
+
+# create the folling nodes
+maestro::nodes:
+  - 'review'
+  - 'util'
+  - 'ci'
+#  - 'nodepool'      # Uncomment this to create a NodePool node (also uncomment below under salt)
+
+# configure the following ssh keys
+maestro::ssh_user_keys:
+  - 'jenkins'
+  - 'forjio'
+
+# define the site information for this blueprint
+# shortname is a descriptive name, TODO: source this from the blueprint data.
+jimador::site:
+  maestro_url: "http://%{::maestro::node_vhost_lookup::vname}"
+  shortname: "RedStone"
+
+maestro::dns::global::default_contact: 'admin@%{::erodomain}'
+maestro::dns:
+  maestro:
+    hostname: 'maestro'
+    type: 'A' 
+    node_search: '/maestro.%{::maestro_id}.*/'
+  review:
+    hostname: 'review'
+    type: 'A' 
+    node_search: 'review.%{::maestro_id}'
+  ci: 
+    hostname: 'ci'
+    type: 'A' 
+    node_search: 'ci.%{::maestro_id}'
+  util:
+    hostname: 'util'
+    type: 'A' 
+    node_search: 'util.%{::maestro_id}'
+
+jimador::documentation:
+  - dname: 'OpenStack Project Infrastructure'
+    category: 'community'
+    url: 'http://ci.openstack.org/'
+  - dname: 'Tutorial'
+    category: 'tutorial'
+    url: '../home/tutorial'
+  - dname: 'Redstone blueprint documentation'
+    category: 'tutorial'
+    url: 'http://docs.forj.io/en/latest/user/kits/redstone.html'
+  - dname: 'Managing code and reviews (Git & Gerrit)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/gerrit.html'
+  - dname: 'Build and tests (Jenkins)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/jenkins.html'
+  - dname: 'Project gating (Zuul)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/zuul.html'
+  - dname: 'Share code & log snippets (Paste)'
+    category: 'tutorial'
+    url: 'http://ci.openstack.org/paste.html'
+  - dname: 'Redstone FAQs'
+    category: 'faq'
+    url: 'http://docs.forj.io/en/latest/user/kits/redstone.html#faq'
+
+# This parameter is used in order to hide an application from the UI. Note: you also need to set to false the 'visible' property from the common.yaml.
+jimador::default_tools_filter:
+  - 'zuul'
+
+maestro::instance_domain: '%{::erodomain}'
+maestro::image_name: '%{::image_name}'
+maestro::flavor_name: '%{::flavor_name}'
+maestro::key_name: '%{::key_name}'
+maestro::network_name: '%{::network_name}'
+maestro::security_groups: '%{::security_groups}'
+
+# maestro ui /app configuration
+maestro::app::setup::revision: '%{::gitbranch}'
+maestro::ui::setup::revision: '%{::gitbranch}'
+
+salt::salt_reactor:
+  - 'maestro'
+  - 'review'
+  - 'util'
+  - 'ci'
+#  - 'nodepool'       # Uncomment this to enable management of Nodepool nodes by salt
+
+puppet::reports::graphite::status: 'enabled'
+puppet::reports::graphite::graphite_port: '2003'
+
+# setup server (iptables, rsyslog, tcpdump, ssh)
+sysadmin_config::manage_servers::iptables_public_tcp_ports:
+  - 80
+  - 443
+  - 3000
+  - 4505
+  - 4506
+  - 8080
+  - 8139
+  - 8140
+

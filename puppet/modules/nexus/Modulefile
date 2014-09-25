@@ -1,0 +1,14 @@
+name 'forj-nexus'
+version '0.1.0'
+author '(c) Copyright 2014 Hewlett-Packard Development Company, L.P.'
+license 'http://www.apache.org/licenses/LICENSE-2.0'
+source 'https://review.forj.io'
+project_page 'https://forj.io'
+summary 'Nexus artifact management system for managing tar files and packages.'
+description 'Nexus is a  repository manager that stores and organizes binary software components for use in development, deployment, and provisioning. 
+Repository managers serve four primary purposess:
+
+•Provides a central point for management of binary software components and their dependencies
+•Provides a solid component repository for a complete Component Lifecycle Management approach
+•Acts as highly configurable proxy between your organization and public repositories
+•Provides a deployment destination for internally developed binary components'

@@ -1,0 +1,8 @@
+name 'forj-java_ora'
+version '0.1.0'
+author '(c) Copyright 2014 Hewlett-Packard Development Company, L.P.'
+license 'http://www.apache.org/licenses/LICENSE-2.0'
+source 'https://review.forj.io'
+project_page 'https://forj.io'
+summary 'Java software required by the fortify_cli module. '
+description 'This module contains the java oracle sdk.'

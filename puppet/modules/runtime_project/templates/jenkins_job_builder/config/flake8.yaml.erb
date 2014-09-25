@@ -1,0 +1,15 @@
+- job-template:
+   name: '{name}-flake8'
+   disabled: false
+
+   builders:
+    - flake8:
+       project: $WORKSPACE
+
+   scm:
+    - git:
+       url: '/var/lib/zuul/git/{git_project}'
+       branches:
+        - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true

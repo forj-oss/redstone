@@ -1,0 +1,39 @@
+---
+# ***************************************************************
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#####################################################################
+# this is an example of CloudFoundry command mapping used in the rake tasks
+# to use this file, just rename this file to paas.yml or change the source code of the .rake file
+# to use a filename of your choice
+#
+# note you can add additional parameters to the mapped command. these will be passed along to the CLI
+# refer to the CLI's help
+
+paas_flavor: cf
+user:
+pwd: 
+target_url: api.cluster.hdpinternals.com
+paas_cli: /usr/bin/cf
+paas_push_cmd: push
+paas_login_cmd: login
+paas_logout_cmd: logout
+paas_target_cmd: target
+paas_api_cmd: api
+paas_stop_cmd: 	 stop
+paas_start_cmd:  start
+paas_restart_cmd: restart
+paas_del_cmd: 	delete
+paas_stats_cmd: stats
+paas_list_cmd: 	apps

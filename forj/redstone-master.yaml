@@ -1,0 +1,130 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+# Redstone blueprint - Version 0.01
+#
+# It describes what development tools, flows and services are implemented to start developing like Openstack do development and Continuous integration.
+#
+# This is a prototype version
+#
+# All blueprint files will be located in /usr/lib/maestro/blueprints
+# This file will need to be installed as redstone-master.yaml under 'blueprints' directory.
+# By convention, we will name it <BluePrintName>-master.yaml to make distinction with the layout.
+# Each repository will create a <repo>/blueprint/ which will contains different blueprint this repository can offer.
+# Blueprints convention is to have <repo>/blueprint/<Blueprint>-master.yaml
+# A default layout can be automatically loaded by maestro, for trial versions, stored as:
+# <repo>/blueprint/default_layout/<Blueprint>-layout.yaml
+#
+# 
+
+blueprint:
+  name: redstone
+  description: Openstack development model
+  icon: 
+    file : redstone.png
+    content : (--- base64 encoded ---)
+  # by default, it should refer to our forj web documentation, to present the blueprint documentation. But we can propose to change it.
+  documentation : 'http://openstack.org/forj'
+  locations:
+    modules: 
+      - src-repo: redstone
+        git: https://review.forj.io/p/forj-oss/redstone
+        puppet-apply: install
+      - src-repo: config
+        git: https://review.forj.io/p/oo-infra/config
+        puppet-extra-modules: /opt/config/production/git/config/modules
+  define:
+    kit:
+      objects:
+        - projects:
+          type: list
+          data_provider: /usr/lib/maestro/bin/kit-project.py --list --json
+          data-struct:
+           - name: project
+             type: string
+          actions:
+           - create_project:
+             title: Create
+             icon: 
+               file: prj-add.png
+               content : (--- base64 encoded ---)
+             command: /usr/lib/maestro/bin/kit-project.py --create ${project}
+           - delete_project:
+             title: Delete project
+             icon:
+               file: prj-del.png
+               content : (--- base64 encoded ---)
+             command: /usr/lib/maestro/bin/kit-project.py --delete ${project}
+    modules: # Describes the list of modules needed to configure a server hosting an application.
+     - status: # We need to declare this module because it requires to define some module options. ie vhost_name, graphite_url, etc...
+       type: internal # Internal means that this module won't be exposed during the layout definition.
+       hiera:
+         classes:
+           - maestro::node_vhost_lookup
+           - cdk_project::status # This is the name of the class to add in classes data of hieradata.
+         template: modules/cdk_project/files/status.yaml.erb # This refers to a puppet template to merge with others the generated document.
+         class_params:
+          - cdk_project::status::vhost_name: 
+            value: "%{::maestro::node_vhost_lookup::vname}"
+          - cdk_project::status::graphite_url:
+            value: "http://%{::maestro::node_vhost_lookup::vname}:8081"
+          - cdk_project::status::static_url:
+            value: "http://%{::maestro::node_vhost_lookup::vname}:8080"
+          - cdk_project::status::maestro_url:
+            value: "http://%{::eroip}"
+     - graphite:
+       type: application # Application type are exposed during layout setup.
+       services: # Will be exposed to the UI services tab.
+         home-url: json('/graphite/home_url') # interpreted by maestro ui to get the data from jmador json file. Defaulted to data/<kit>/jimador/config.json
+         setting-url: json(/graphite/setting-url')
+         icon: graphite.png 
+       hiera:
+         requires: 
+           - module: status # Module inform that this blueprint declare some extra information required by this 'graphite' module. Look at 'status'.
+         classes:
+           - cdk_project::graphite # This is the main class used by this module. hieradata are defined in this current module.
+         template: modules/cdk_project/files/graphite.yaml.erb # This refers to a puppet template to merge with others the generated document.
+         class_params:
+          - cdk_project::graphite::vhost_name: 
+            value: "%{::maestro::node_vhost_lookup::vname}"
+          - cdk_project::graphite::graphite_admin_user: 
+            type: 'string'
+            value: 'ask'
+            default: 'sysadmin'
+            ask-desc: 'Please, enter the default graphite administrator account name to use.'
+            ask-title: 'Admin account: '
+            default: 'admin'
+          - cdk_project::graphite::graphite_admin_email:
+            type: 'string'
+            value: 'ask'
+            default: 'sysadmin'
+            ask-desc: 'Please, enter the default graphite administrator email to use.'
+            ask-title: 'Admin account: '
+          - cdk_project::graphite::graphite_admin_password:
+            type: 'password'
+            value: 'ask'
+            ask-desc: 'Enter a password to use.'
+            # Default for ask-title defined by type 'password' is 'password:'
+     - paste:
+       type: application
+       hiera:
+         requires:
+           - status # Module inform that this blueprint declare some extra information required by this 'graphite' module. Look at 'status'.
+         classes: 
+           - cdk_project::paste # This is the name of the class to add in classes data of hieradata.
+         template: modules/cdk_project/files/paste.yaml.erb # This refers to a puppet template to merge with others the generated document.
+         class_params:
+          - cdk_project::paste::vhost_name: 
+            value: "%{::maestro::node_vhost_lookup::vname}"
+          - cdk_project::paste::site_name:
+            value: 'cdkdev'

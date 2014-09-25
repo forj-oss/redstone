@@ -1,0 +1,23 @@
+- job-template:
+    name: '{name}-zuul-layout'
+
+    scm:
+    - git:
+       url: '/var/lib/zuul/git/{git_project}'
+       branches:
+         - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+    builders:
+    - shell: |
+          #!/bin/bash -xe
+          mkdir -p $WORKSPACE/.test
+          cd $WORKSPACE/.test
+          [ -d zuul ] || git clone https://review.openstack.org/p/openstack-infra/zuul --depth 1
+          cp /etc/zuul/openstack_functions.py $WORKSPACE/modules/runtime_project/files/zuul/config/production/openstack_functions.py
+          cd zuul
+          #Per issues with the proxy we need to send python package (sphinxcontrib-blockdiag>=0.5.5) at the end of the installation.
+          sed -i '/sphinxcontrib-blockdiag>=0.5.5/d' test-requirements.txt
+          sed -i -e "\$asphinxcontrib-blockdiag>=0.5.5" test-requirements.txt
+          tox -e venv -- zuul-server -c etc/zuul.conf-sample -l $WORKSPACE/modules/runtime_project/files/zuul/config/production/layout.yaml -t

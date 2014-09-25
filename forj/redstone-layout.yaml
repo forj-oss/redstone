@@ -1,0 +1,79 @@
+# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+# Openstack layout - Version 0.01
+#
+
+# This file has been created to be focused for the first generator script to manage openstack as a Blueprint implementation.
+#
+# On Maestro, this file will need to be located under /usr/lib/maestro/layouts.
+# By convention, the layout will be named as <bluePrintName>-layout.yaml to make the distinction against the master one.
+
+# Variables:
+# There is at least 3 kind of variables. All of these variables are defined from the blueprint. 
+# In the deploy file, we will implement 2 kind of files:
+# - hiera variables. We will have a file per servers.
+#   runtime_project/files/hiera/hieradata/Debian/nodetype/*.yaml
+# - site.pp
+#   site.pp will need to be replaced by a collection of files. See http://docs.puppetlabs.com/puppet/latest/reference/dirs_manifest.html
+#   Currently, I have updated site.pp to reflect a simplified util section. But this should be stored under a <server>.pp
+
+blueprint-deploy:
+   layout: redstone
+   blueprint : redstone # This refer to another file which describes the blueprint itself. In this case, I named this file redstone-master.yaml.
+   servers:
+     - util: 
+       name: util
+       applications:
+        - status:
+          class: cdk_project::status # This is the name of the class to add in classes data of hieradata.
+          class_template: status.pp.erb # This refers to a puppet template to merge with others the generated document.
+          class_params: # Those are the list of variables needed to make the class work. They are prefixed by the module name. ie 'status'.
+            - sysadmins:
+            - vhost_name: "${node_vhost}"
+            - zuul_url: "${zuul_url}"
+            - graphite_url: "http://${node_vhost}:8081"
+            - static_url: "http://${node_vhost}:8080"
+            - maestro_url: "http://%{maestro-url}"
+        - graphite:
+          class: cdk_project::graphite
+          class_template: graphite.pp.erb # This refers to a puppet template to merge with others the generated document.
+          class_params:
+            - vhost_name: "${node_vhost}"
+            - sysadmins: 
+            - graphite_admin_user: 
+            - graphite_admin_email:
+            - graphite_admin_password:
+            - statsd_hosts: [ "${zuul_url}" ]
+        - paste:
+          class: cdk_project::paste
+          class_template: paste.pp.erb # This refers to a puppet template to merge with others the generated document.
+          class_params:
+            - sysadmins:
+            - vhost_name: "${node_vhost}"
+            - site_name: 'cdkdev'
+     - nodepool:
+       name: nodepool
+       applications:
+        - nodepool:
+          class: cdk_project::nodepool
+          class_template: nodepool.pp.erb
+          class_params:
+            - vhost_name: "${node_vhost}"
+            - sysadmins:
+            - mysql_password:
+            - mysql_root_password:
+            - nodepool_ssh_private_key:
+            
+

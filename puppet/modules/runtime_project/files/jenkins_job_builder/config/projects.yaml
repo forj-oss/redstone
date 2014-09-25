@@ -1,0 +1,15 @@
+- project:
+   name: tutorials
+   git_project: tutorials
+   branch: master
+   jobs:
+    - '{name}-flake8'
+    - 'puppet-apply-all-nodes'
+- project:
+   name: forj-config
+   git_project: forj-config
+   branch: master
+   jobs:
+    - '{name}-zuul-layout'
+    - '{name}-puppet-checks'
+    - 'puppet-apply-all-nodes'

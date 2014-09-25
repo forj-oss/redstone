@@ -1,4 +1,4 @@
 [gerrit]
-host=en-review.cdkdev.org
+host=review.forj.io
 port=29418
 project=forj-oss/redstone.git

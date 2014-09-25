@@ -1,0 +1,2 @@
+fortify_license_path=/tmp/fortify.license
+unattendedmodeui=minimal

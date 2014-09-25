@@ -1,0 +1,39 @@
+# Copyright 2013 OpenStack Foundation.
+# Copyright 2013 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+
+<VirtualHost _default_:80>
+  ServerAdmin <%= scope.lookupvar("::zuul::serveradmin") %>
+  DocumentRoot /var/lib/zuul/www
+
+  ErrorLog ${APACHE_LOG_DIR}/<%= scope.lookupvar("::zuul::vhost_name") %>-error.log
+
+  LogLevel warn
+
+  CustomLog ${APACHE_LOG_DIR}/<%= scope.lookupvar("::zuul::vhost_name") %>-access.log combined
+
+  RewriteEngine on
+  RewriteRule ^/status.json$ http://127.0.0.1:8001/status.json [P]
+
+  Alias /rechecks.html /var/www/recheckwatch/rechecks.html
+  Alias /rechecks /var/www/recheckwatch/rechecks.html
+
+  SetEnv GIT_PROJECT_ROOT /var/lib/zuul/git/
+  SetEnv GIT_HTTP_EXPORT_ALL
+
+  AliasMatch ^/p/(.*/objects/[0-9a-f]{2}/[0-9a-f]{38})$ /var/lib/zuul/git/$1
+  AliasMatch ^/p/(.*/objects/pack/pack-[0-9a-f]{40}.(pack|idx))$ /var/lib/zuul/git/$1
+  ScriptAlias /p/ /usr/lib/git-core/git-http-backend/
+</VirtualHost>
