@@ -8,7 +8,7 @@
 
    scm:
     - git:
-       url: '/var/lib/zuul/git/{git_project}'
+       url: '${{ZUUL_URL}}/${{ZUUL_PROJECT}}'
        branches:
         - '${{ZUUL_COMMIT}}'
        refspec: '${{ZUUL_REF}}'
