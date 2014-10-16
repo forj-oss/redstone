@@ -182,6 +182,16 @@ class cdk_project::zuul(
       path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
       logoutput => true,
     }
+    exec { 'zuul-merger-start':
+      user      => 'zuul',
+      command   => '/etc/init.d/zuul-merger start',
+      require   => [Cacerts::Known_hosts['zuul'],
+                      Exec['upgrade_zuul'],
+                      Apache::Vhost["zuul-${vhost_name}"]],
+      onlyif    => "test $(ps -ef | grep zuul-merger | grep -v grep | wc -l) -eq 0",
+      path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
+      logoutput => true,
+    }
     #Service type for zuul is not working, so in order to get the latest changes from the layout.yaml and zuul.conf we need to restart the service manually.
     exec { 'zuul-restart':
       user    => 'zuul',
