@@ -50,6 +50,7 @@ class cdk_project::nodepool(
     statsd_host               => $statsd_host,
     image_log_document_root   => $image_log_document_root,
     enable_image_log_via_http => $enable_image_log_via_http,
+    environment               => $environment,
   }
 
   file { '/etc/nodepool/nodepool.yaml':
