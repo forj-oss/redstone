@@ -50,6 +50,7 @@ cdk_project::nodepool::tripleo_password:            ''
 cdk_project::nodepool::tripleo_project:             ''
 cdk_project::nodepool::image_log_document_root:     '/var/log/nodepool/image'
 cdk_project::nodepool::image_log_via_http:          false
+#cdk_project::nodepool::environment:
 
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
