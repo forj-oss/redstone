@@ -26,7 +26,7 @@ class exim_config(
   $smtp_auth_driver   = hiera('exim_config::smtp_auth_driver','plaintext'),
   $smtp_public_name   = hiera('exim_config::smtp_public_name','LOGIN'),
   $relay_from_hosts   = hiera_array('exim_config::relay_from_hosts',['127.0.0.1']),
-  $sysadmin           = hiera('exim_config::sysadmin',[]),
+  $sysadmin           = hiera_array('exim_config::sysadmin',[]),
 ) {
 #Important: if you specify a relay host you need to make sure that port 25 is open.
 
