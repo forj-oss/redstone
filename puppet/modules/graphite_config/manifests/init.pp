@@ -57,10 +57,10 @@ class graphite_config(
   }
 
   exec {'Install django 1.4':
-    command     => 'pip install django==1.4',
-    path        => '/usr/local/bin:/usr/bin:/bin',
-    require     => Exec['install_graphite_web'],
-    onlyif      => 'django-admin --version | grep -v 1.4',
+    command => 'pip install django==1.4',
+    path    => '/usr/local/bin:/usr/bin:/bin',
+    require => Exec['install_graphite_web'],
+    onlyif  => 'django-admin --version | grep -v 1.4',
   }
 
   vcsrepo { '/opt/carbon':
