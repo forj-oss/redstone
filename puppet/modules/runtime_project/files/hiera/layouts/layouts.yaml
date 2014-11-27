@@ -35,6 +35,24 @@ jimador::discover:
     desc: 'View managed nodes'
     icon: true
     visible: true
+  uchiwa:
+    tool_email: ''
+    tool_config: "#"
+    tool_url: "%{::uchiwa_url}"
+    category: 'dev'
+    dname: 'Uchiwa'
+    desc: 'Uchiwa is a dashboard for the Sensu monitoring framework'
+    icon: true
+    visible: true
+  rabbitmq:
+    tool_email: ''
+    tool_config: "#"
+    tool_url: "%{::rabbitmq_url}"
+    category: 'dev'
+    dname: 'Rabbitmq'
+    desc: 'Rabbitmq Management Console'
+    icon: true
+    visible: true
   gerrit:
     tool_email: "%{::gerrit_email}"
     tool_config: "%{::gerrit_url_config}"
