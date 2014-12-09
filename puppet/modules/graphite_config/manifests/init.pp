@@ -26,16 +26,18 @@ class graphite_config(
   $whisper_revision = 'master',
   $statsd_revision = 'master',
 ) {
-  $packages = [ 'python-django',
-                'python-django-tagging',
-                'python-cairo',
-                'nodejs' ]
 
+  require nodejs_wrap
   include apache
   include pip::python2
 
+  $packages = [ 'python-django',
+                'python-django-tagging',
+                'python-cairo' ]
+
   package { $packages:
-    ensure => present,
+    ensure  => present,
+    require => Package['nodejs'],
   }
 
   vcsrepo { '/opt/graphite-web':

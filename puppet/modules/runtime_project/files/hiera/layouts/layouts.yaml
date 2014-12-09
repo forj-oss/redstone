@@ -21,9 +21,6 @@
 sysadmin_config::swap::swap_file: '/mnt/swapfile'
 sysadmin_config::swap::block_size: '1M'
 
-# nodejs wrap global defaults
-nodejs_wrap::node_env: "%{::maestro::params::node_env}"
-
 # nexus server cofiguration
 nexus::artifact::nexus_server: 'http://nexus.cdkdev.org:8080/nexus'
 
