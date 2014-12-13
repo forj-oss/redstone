@@ -21,7 +21,7 @@
 # By convention, the layout will be named as <bluePrintName>-layout.yaml to make the distinction against the master one.
 
 # Variables:
-# There is at least 3 kind of variables. All of these variables are defined from the blueprint. 
+# There is at least 3 kind of variables. All of these variables are defined from the blueprint.
 # In the deploy file, we will implement 2 kind of files:
 # - hiera variables. We will have a file per servers.
 #   runtime_project/files/hiera/hieradata/Debian/nodetype/*.yaml
@@ -33,7 +33,13 @@ blueprint-deploy:
    layout: redstone
    blueprint : redstone # This refer to another file which describes the blueprint itself. In this case, I named this file redstone-master.yaml.
    servers:
-     - util: 
+     - maestro:
+       name: maestro
+     - review:
+       name: review
+     - ci:
+       name: ci
+     - util:
        name: util
        applications:
         - status:
@@ -51,8 +57,8 @@ blueprint-deploy:
           class_template: graphite.pp.erb # This refers to a puppet template to merge with others the generated document.
           class_params:
             - vhost_name: "${node_vhost}"
-            - sysadmins: 
-            - graphite_admin_user: 
+            - sysadmins:
+            - graphite_admin_user:
             - graphite_admin_email:
             - graphite_admin_password:
             - statsd_hosts: [ "${zuul_url}" ]
@@ -75,5 +81,3 @@ blueprint-deploy:
             - mysql_password:
             - mysql_root_password:
             - nodepool_ssh_private_key:
-            
-
