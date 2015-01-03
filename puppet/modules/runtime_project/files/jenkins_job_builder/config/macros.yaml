@@ -208,7 +208,7 @@
 - builder:
     name: tarball
     builders:
-      - shell: "/usr/local/jenkins/slave_scripts/run-tarball.sh {github-org} {project}"
+      - shell: "/usr/local/jenkins/slave_scripts/run-tarball.sh {name} {tarball-site}"
 
 - builder:
     name: devstack-checkout
@@ -254,6 +254,11 @@
     name: puppet-apply-single-node
     builders:
       - shell: "sudo /usr/bin/salt-call event.fire_master \"{param}\" \"{param}\""
+
+  builder:
+    name: publish-tags
+    builders:
+      - shell: "/usr/local/jenkins/runtime_script/tags.sh {parameter1} {parameter2} {parameter3}"
 
 #Puppet apply for all the nodes, first master then the nodes (review,util,ci)
 - builder:

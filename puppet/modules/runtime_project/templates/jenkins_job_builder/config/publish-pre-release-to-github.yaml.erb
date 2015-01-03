@@ -1,0 +1,26 @@
+- job-template:
+    name: '{name}-publish-pre-release-to-github'
+    node: 'master'
+
+    scm:
+    - git:
+       url: '${{ZUUL_URL}}/${{ZUUL_PROJECT}}'
+       branches:
+         - '${{ZUUL_COMMIT}}'
+       refspec: '${{ZUUL_REF}}'
+       clean: true
+
+    builders:
+    - shell: |
+           #!/bin/bash -xe
+           cd $WORKSPACE
+           git remote add origin2 git@github.com:{git_project}.git
+           git checkout ${{ZUUL_REF}}
+           git merge ${{ZUUL_COMMIT}}
+           git tag -d $(git tag | tail -1)
+           git push -u origin2 ${{ZUUL_REF}} --tags
+
+    - publish-tags:
+        parameter1: "<%= scope.lookupvar("::cdk_project::jenkins::gerrit_server") %>"
+        parameter2: "{git_project}"
+        parameter3: "true"
