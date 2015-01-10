@@ -21,15 +21,15 @@ define gerrit_config::signagreements (
 )
 {
   $sql_account_exist = "select * from account_external_ids where external_id = \\\"'username:${gerrit_id}'\\\""
-  $sql_agreement_exist = "select * from account_agreements aa inner join account_external_ids ae on aa.account_id = ae.account_id where ae.external_id = \\\"'username:${gerrit_id}'\\\""
-  $sql_agreement_insert = "insert into account_agreements(accepted_on, status, reviewed_on, review_comments, account_id, cla_id) values(NOW(), \\\"V\\\", NOW(), \\\"added automatically by puppet\\\", (select account_id from account_external_ids where external_id = \\\"'username:${gerrit_id}'\\\"), 2)"
+  $sql_agreement_exist =  "select * from account_group_members natural join account_external_ids where external_id = \\\"'username:${gerrit_id}'\\\" and group_id = (select group_id from account_groups where name = \"'CLA Accepted - ICLA''\" )"
+  $sql_agreement_insert = "insert into account_group_member VALUES ((select account_id from account_external_ids where external_id = \\\"'username:${gerrit_id}'\\\"),(select group_id from account_groups where name = \"'CLA Accepted - ICLA''\" ))"
   # Sign the contribution agreement in case it not exists
   exec { "sign contribution agreement for ${gerrit_id} user":
       path      => ['/bin', '/usr/bin'],
       command   => "${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_agreement_insert}'\"",
       onlyif    => [
                     "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_agreement_exist}'\"|grep ${gerrit_id}|wc -l) -le 0",
-                    "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_account_exist}'\"|grep ${gerrit_id}|wc -l) -gt 0",
+                    "test \$(${gerrit_config::params::gerrit_ssh} gerrit gsql -c \"'${sql_account_exist}'\"|grep ${gerrit_id}|wc -l) -le 1",
                     ],
       logoutput => true,
   }

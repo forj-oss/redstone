@@ -19,7 +19,6 @@
 #  TODO: contribute this to the gerrit project
 #        once we opensource enable our project.
 #
-#
 
 class gerrit_config::setup(
     $demo_enabled                   = false,
@@ -30,27 +29,23 @@ class gerrit_config::setup(
   include gerrit_config::params
 
   class {'gerrit_config::connect_bugs':
-      enabled => $buglinks_enabled,
+        enabled => $buglinks_enabled,
   }
 
-  class{'gerrit_config::gerrit_init':
-      require_contact_information => $require_contact_information,
-      require                     => Class['::gerrit_config'],
-  } ->
   class{'gerrit_config::createfirstaccount':
-          gerrit_id => $gerrit_config::params::gerrit_user,
+        gerrit_id => $gerrit_config::params::gerrit_user,
   } ->
   # make the first openid user an adminsitrator
   class {'gerrit_config::firstopenidadmin':} ->
   class {'gerrit_config::adddemoids':
-                  enabled         => $demo_enabled,
-      } ->
+        enabled => $demo_enabled,
+  } ->
   service { 'gerrit':
     ensure => running,
     enable => true,
   }
 
-# Below steps should not require a service restart.
+  # Below steps should not require a service restart.
 
   gerrit_config::create_group{'Project Bootstrappers':
         owner       => 'Administrators',
@@ -58,6 +53,11 @@ class gerrit_config::setup(
         description => 'Project creation group',
         isvisible   => true,
         require     => Service['gerrit'],
+  } ->
+  gerrit_config::create_group{'CLA Accepted - ICLA':
+        owner       => 'Administrators',
+        description => 'Users that accepted ICLA',
+        isvisible   => true,
   } ->
   gerrit_config::create_group{'External Testing Tools':
         owner       => 'Administrators',
@@ -79,10 +79,9 @@ class gerrit_config::setup(
         description => 'Users that maintain stable branches',
         isvisible   => true,
   } ->
-
-# create all batch accounts for gerrit
-# Note, if a key has not been stored on the puppet master first, this will fail!
-# cacerts::sshgenkeys{'jenkins':  do_cacertsdb=>true}
+  # create all batch accounts for gerrit
+  # Note, if a key has not been stored on the puppet master first, this will fail!
+  # cacerts::sshgenkeys{'jenkins':  do_cacertsdb=>true}
   class {'gerrit_config::allprojects_acls_setup':} ->
   gerrit_config::createbatchaccount{'jenkins':
         fullname      => 'Jenkins Build User',
@@ -92,12 +91,11 @@ class gerrit_config::setup(
   gerrit_config::createbatchaccount{'forjio':
         fullname      => 'Forj Configuration User',
         email_address => 'forjio@localhost.org',
-        group         => 'Administrators',  # after gerrit 2.7 we can do groups
+        group         => 'Administrators', # after gerrit 2.7 we can do groups
   } ->
   file { '/tmp/post-configure.sh':
         ensure => 'present',
         mode   => '0744',
         source => 'puppet:///modules/gerrit_config/post-configure.sh',
-      }
-
+  }
 }

@@ -66,6 +66,7 @@ class cdk_project::gerrit (
   $script_key_file                  = hiera('cdk_project::gerrit::script_key_file'                  ,'/home/gerrit2/.ssh/id_rsa'),
   $script_logging_conf              = hiera('cdk_project::gerrit::script_logging_conf'              ,'/home/gerrit2/.sync_logging.conf'),
   $projects_file                    = hiera('cdk_project::gerrit::projects_file'                    ,'UNDEF'),
+  $projects_config                  = hiera('cdk_project::gerrit::projects_config'                  ,'UNDEF'),
   $github_username                  = hiera('cdk_project::gerrit::github_username'                  ,''),
   $github_oauth_token               = hiera('cdk_project::gerrit::github_oauth_token'               ,''),
   $github_project_username          = hiera('cdk_project::gerrit::github_project_username'          ,''),
@@ -75,6 +76,7 @@ class cdk_project::gerrit (
   $trivial_rebase_role_id           = hiera('cdk_project::gerrit::trivial_rebase_role_id'           ,''),
   $email_private_key                = hiera('cdk_project::gerrit::email_private_key'                ,''),
   $local_git_dir                    = hiera('cdk_project::gerrit::local_git_dir'                    ,'/var/lib/git'),
+  $jeepyb_cache_dir                 = hiera('cdk_project::gerrit::jeepyb_cache_dir'                 ,'/opt/lib/jeepyb'),
   # OpenStack Individual Contributor License Agreement'
   $cla_description                  = hiera('cdk_project::gerrit::cla_description'                  ,'OpenStack ICLA'),
   $cla_file                         = hiera('cdk_project::gerrit::cla_file'                         ,'static/cla.html'),
@@ -434,26 +436,12 @@ class cdk_project::gerrit (
 
     class { 'gerrit_config::manage_projects':
           project_file    => $projects_file,
+          project_config  => $projects_config,
           runtime_module  => $runtime_module,
           local_git_dir   => $local_git_dir,
           script_user     => $script_user,
           script_key_file => $script_key_file,
           require         => Class['gerrit_config::setup'],
     }
-  }
-
-  file { '/home/gerrit2/review_site/bin/set_agreements.sh':
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    content => template("${runtime_module}/gerrit/bin/gerrit_set_agreements.sh.erb"),
-    replace => true,
-    require => Class['::gerrit_config']
-  }
-  exec { 'set_contributor_agreements':
-    path    => ['/bin', '/usr/bin'],
-    command => '/home/gerrit2/review_site/bin/set_agreements.sh',
-    require => File['/home/gerrit2/review_site/bin/set_agreements.sh']
   }
 }
