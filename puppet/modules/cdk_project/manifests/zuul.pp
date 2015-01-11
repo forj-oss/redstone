@@ -127,7 +127,7 @@ class cdk_project::zuul(
       group  => 'root',
       mode   => '0754',
       source => 'puppet:///modules/runtime_project/zuul/config/production/layout.yaml',
-      notify => Exec['zuul-reload'],
+      notify => Exec['zuul-restart'],
     }
     file { '/etc/zuul/openstack_functions.py':
       ensure => present,
@@ -135,7 +135,7 @@ class cdk_project::zuul(
       group  => 'root',
       mode   => '0754',
       source => 'puppet:///modules/openstack_project/zuul/openstack_functions.py',
-      notify => Exec['zuul-reload'],
+      notify => Exec['zuul-restart'],
     }
     file { '/etc/zuul/logging.conf':
       ensure => present,
@@ -143,7 +143,7 @@ class cdk_project::zuul(
       group  => 'root',
       mode   => '0754',
       source => 'puppet:///modules/openstack_project/zuul/logging.conf',
-      notify => Exec['zuul-reload'],
+      notify => Exec['zuul-restart'],
     }
     file { '/etc/zuul/gearman-logging.conf':
       ensure => present,
@@ -151,7 +151,7 @@ class cdk_project::zuul(
       group  => 'root',
       mode   => '0754',
       source => 'puppet:///modules/openstack_project/zuul/gearman-logging.conf',
-      notify => Exec['zuul-reload'],
+      notify => Exec['zuul-restart'],
     }
     class { '::recheckwatch':
       gerrit_server                => $gerrit_server,
@@ -164,20 +164,19 @@ class cdk_project::zuul(
       content => template('cdk_project/status/zuul/scoreboard.html.erb'),
       require => File['/var/lib/recheckwatch'],
     }
-    exec { 'upgrade_zuul' :
-      command   => 'pip install /opt/zuul --upgrade',
-      logoutput => true,
-      creates   => '/usr/local/lib/python2.7/dist-packages/lockfile-0.9.1-py2.7.egg-info', #this is the package that looks like is not correct installed the first time
-      path      => '/usr/local/bin:/usr/bin:/bin/',
-      require   => Class['::zuul'],
-    }
     #Service type for zuul is not working, so we need to start zuul manually.
     exec { 'zuul-start':
       user      => 'zuul',
       command   => '/etc/init.d/zuul start',
-      require   => [Cacerts::Known_hosts['zuul'],
-                      Exec['upgrade_zuul'],
-                      Apache::Vhost["zuul-${vhost_name}"]],
+      require   => [Class['::zuul'],
+                    Class['::zuul::server'],
+                    Class['::zuul::merger'],
+                    Cacerts::Known_hosts['zuul'],
+                    Apache::Vhost["zuul-${vhost_name}"],
+                    File['/etc/zuul/layout.yaml'],
+                    File['/etc/zuul/openstack_functions.py'],
+                    File['/etc/zuul/logging.conf'],
+                    File['/etc/zuul/gearman-logging.conf']],
       onlyif    => "test $(ps -ef | grep zuul-server | grep -v grep | wc -l) -eq 0",
       path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
       logoutput => true,
@@ -185,28 +184,41 @@ class cdk_project::zuul(
     exec { 'zuul-merger-start':
       user      => 'zuul',
       command   => '/etc/init.d/zuul-merger start',
-      require   => [Cacerts::Known_hosts['zuul'],
-                      Exec['upgrade_zuul'],
-                      Apache::Vhost["zuul-${vhost_name}"]],
+      require   => [Class['::zuul'],
+                    Class['::zuul::server'],
+                    Class['::zuul::merger'],
+                    Cacerts::Known_hosts['zuul'],
+                    Apache::Vhost["zuul-${vhost_name}"],
+                    File['/etc/zuul/layout.yaml'],
+                    File['/etc/zuul/openstack_functions.py'],
+                    File['/etc/zuul/logging.conf'],
+                    File['/etc/zuul/gearman-logging.conf']],
       onlyif    => "test $(ps -ef | grep zuul-merger | grep -v grep | wc -l) -eq 0",
       path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
       logoutput => true,
     }
     #Service type for zuul is not working, so in order to get the latest changes from the layout.yaml and zuul.conf we need to restart the service manually.
     exec { 'zuul-restart':
-      user    => 'zuul',
-      command => '/etc/init.d/zuul restart',
-      require => Exec['zuul-start'],
-      onlyif  => "ssh -p 29418 -i /var/lib/zuul/ssh/id_rsa ${gerrit_user}@${gerrit_server} gerrit ls-projects | grep 'tutorials'",
-      path    => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
+      user        => 'zuul',
+      command     => '/etc/init.d/zuul restart',
+      require     => Exec['zuul-start'],
+      onlyif      => "ssh -p 29418 -i /var/lib/zuul/ssh/id_rsa ${gerrit_user}@${gerrit_server} gerrit ls-projects | grep 'tutorials'",
+      subscribe   => [
+          File['/etc/zuul/layout.yaml'],
+          File['/etc/zuul/openstack_functions.py'],
+          File['/etc/zuul/logging.conf'],
+          File['/etc/zuul/gearman-logging.conf'],
+        ],
+      refreshonly => true,
+      path        => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
     }
     exec { 'recheckwatch-restart':
       command => '/etc/init.d/recheckwatch restart',
-      require => Exec['zuul-restart'],
+      require => Exec['zuul-start'],
       onlyif  => [
-                      "ssh -p 29418 -i /var/lib/zuul/ssh/id_rsa ${gerrit_user}@${gerrit_server} gerrit ls-projects | grep 'tutorials'",
-                      "test $(ps -ef | grep recheckwatch | grep -v grep | wc -l) -eq 0"
-                      ],
+                  "ssh -p 29418 -i /var/lib/zuul/ssh/id_rsa ${gerrit_user}@${gerrit_server} gerrit ls-projects | grep 'tutorials'",
+                  "test $(ps -ef | grep recheckwatch | grep -v grep | wc -l) -eq 0"
+                  ],
       path    => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ]
     }
   }
