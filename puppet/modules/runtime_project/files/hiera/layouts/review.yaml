@@ -79,8 +79,8 @@ cdk_project::gerrit::github_username:                  ''  # "%{::domain}-gerrit
 cdk_project::gerrit::github_oauth_token:               ''
 cdk_project::gerrit::github_project_username:          ''
 cdk_project::gerrit::github_project_password:          ''
-cdk_project::gerrit::mysql_password:                   'changeme'
-cdk_project::gerrit::mysql_root_password:              'changeme'
+cdk_project::gerrit::mysql_password:                   "%{hiera('mysql_password')}"
+cdk_project::gerrit::mysql_root_password:              "%{hiera('mysql_root_password')}"
 cdk_project::gerrit::trivial_rebase_role_id:           "trivial-rebase@review.%{::domain}"
 #TODO needs autogeneration at some point
 cdk_project::gerrit::email_private_key:                'FU7D198KY5xEx55/+YA1piHcfhwy/fo8sZk='
