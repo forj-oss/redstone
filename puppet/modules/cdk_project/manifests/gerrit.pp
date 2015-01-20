@@ -204,14 +204,44 @@ class cdk_project::gerrit (
   $comment_links_data1 = concat(
   [
     {
-    name  => 'changeid',
-    match => '(I[0-9a-f]{8,40})',
-    link  => '#q,$1,n,z',
+      name  => 'bugheader',
+      match => '([Cc]loses|[Pp]artial|[Rr]elated)-[Bb]ug:\\s*#?(\\d+)',
+      link  => 'https://launchpad.net/bugs/$2',
     },
     {
-    name  => 'testresult',
-    match => '<li>([^ ]+) <a href=\"[^\"]+\">([^<]+)</a> : ([^ ]+)([^<]*)</li>',
-    html  => '<li><span class=\"comment_test_name\"><a href=\"$2\">$1</a></span> <span class=\"comment_test_result\"><span class=\"result_$3\">$3</span>$4</span></li>',
+      name  => 'bug',
+      match => '\\bbug:? #?(\\d+)',
+      link  => 'https://launchpad.net/bugs/$1',
+    },
+    {
+      name  => 'story',
+      match => '\\bstory:? #?(\\d+)',
+      link  => 'https://storyboard.openstack.org/#!/story/$1',
+    },
+    {
+      name  => 'blueprint',
+      match => '(\\b[Bb]lue[Pp]rint\\b|\\b[Bb][Pp]\\b)[ \\t#:]*([A-Za-z0-9\\-]+)',
+      link  => 'https://blueprints.launchpad.net/openstack/?searchtext=$2',
+    },
+    {
+      name  => 'testresult',
+      match => '<li>([^ ]+) <a href=\"[^\"]+\" target=\"_blank\">([^<]+)</a> : ([^ ]+)([^<]*)</li>',
+      html  => '<li class=\"comment_test\"><span class=\"comment_test_name\"><a href=\"$2\">$1</a></span> <span class=\"comment_test_result\"><span class=\"result_$3\">$3</span>$4</span></li>',
+    },
+    {
+      name  => 'launchpadbug',
+      match => '<a href=\"(https://bugs\\.launchpad\\.net/[a-zA-Z0-9\\-]+/\\+bug/(\\d+))[^\"]*\">[^<]+</a>',
+      html  => '<a href=\"$1\">$1</a>'
+    },
+    {
+      name  => 'changeid',
+      match => '(I[0-9a-f]{8,40})',
+      link  => '#q,$1,n,z',
+    },
+    {
+      name  => 'gitsha',
+      match => '(<p>|[\\s(])([0-9a-f]{40})(</p>|[\\s.,;:)])',
+      html  => '$1<a href=\"#q,$2,n,z\">$2</a>$3',
     },
   ],
     $::gerrit_config::connect_bugs::commentlink
@@ -359,6 +389,7 @@ class cdk_project::gerrit (
     mode    => '0444',
     source  => $logo,
     require => Class['::gerrit_config'],
+    notify  => Exec['reload_gerrit_header'],
   }
 
   file { '/home/gerrit2/review_site/static/openstack-page-bkg.jpg':
@@ -368,6 +399,25 @@ class cdk_project::gerrit (
     mode    => '0444',
     source  => "puppet:///modules/${runtime_module}/branding/openstack-page-bkg.jpg",
     require => Class['::gerrit_config'],
+  }
+
+  package { 'libjs-jquery':
+    ensure => present,
+  }
+
+  file { '/home/gerrit2/review_site/static/jquery.min.js':
+    ensure  => present,
+    source  => '/usr/share/javascript/jquery/jquery.min.js',
+    require => [Class['::gerrit_config'],
+                Package['libjs-jquery']],
+    notify  => Exec['reload_gerrit_header'],
+  }
+
+  file { '/home/gerrit2/review_site/static/hideci.js':
+    ensure  => present,
+    source  => "puppet:///modules/${runtime_module}/gerrit/hideci.js",
+    require => Class['::gerrit_config'],
+    notify  => Exec['reload_gerrit_header'],
   }
 
   file { '/home/gerrit2/review_site/etc/GerritSite.css':
@@ -386,6 +436,12 @@ class cdk_project::gerrit (
     mode    => '0444',
     source  => "puppet:///modules/${runtime_module}/gerrit/GerritSiteHeader.html",
     require => Class['::gerrit_config'],
+  }
+
+  exec { 'reload_gerrit_header':
+    command     => 'touch /home/gerrit2/review_site/etc/GerritSiteHeader.html',
+    path        => 'bin:/usr/bin',
+    refreshonly => true,
   }
 
   cron { 'gerritsyncusers':

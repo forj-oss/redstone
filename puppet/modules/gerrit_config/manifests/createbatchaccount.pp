@@ -19,7 +19,7 @@
 # Nothing is done if the first account does not exist.
 # Testing it:
 # pp -e "cacerts::sshgenkeys{'jenkins':do_cacertsdb=>true}"
-# pp -e "gerrit_config::createbatchaccount{'jenkins':,fullname=>'Jenkins Build User',email_address=>'jenkins@localhost.org',group=>'Administrators',debug_flag=>true}"
+# pp -e "gerrit_config::createbatchaccount{'jenkins':,fullname=>'Jenkins',email_address=>'jenkins@localhost.org',group=>'Administrators',debug_flag=>true}"
 
 define gerrit_config::createbatchaccount (
     $gerrit_id             = $title,

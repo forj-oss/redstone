@@ -44,4 +44,29 @@ a.gwt-InlineHyperlink {background: none !important}
 .result_LOST {
     color: #e39f00;
 }
-ul {list-style-type: none; }
+li.comment_test {list-style-type: none; }
+
+/* this is for support of 'Display Person Name In Review Category' */
+.cAPPROVAL {
+    max-width: 100px;
+    overflow: hidden;
+}
+/* fixes to make this like old gerrit */
+.changeTable td.dataCell {
+    height: 1em;
+}
+
+/* don't make the non voting stand out more than the voting */
+table.infoTable td.notVotable,
+.changeTable td.dataCell.labelNotApplicable {
+    background: inherit;
+}
+
+.addMemberTextBox {
+    width: 20em;
+}
+
+/* css attribute selector to make -1s show up red in new screen */
+[title="This patch needs further work before it can be merged"] {
+    color: red;
+}

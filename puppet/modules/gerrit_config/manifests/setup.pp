@@ -84,7 +84,7 @@ class gerrit_config::setup(
   # cacerts::sshgenkeys{'jenkins':  do_cacertsdb=>true}
   class {'gerrit_config::allprojects_acls_setup':} ->
   gerrit_config::createbatchaccount{'jenkins':
-        fullname      => 'Jenkins Build User',
+        fullname      => 'Jenkins',
         email_address => 'jenkins@localhost.org',
         group         => 'Continuous Integration Tools',
   } ->
