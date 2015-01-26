@@ -205,6 +205,19 @@ class gerrit_config(
     require => User['gerrit2'],
   }
 
+  file { '/home/gerrit2/review_site/plugins':
+    ensure  => directory,
+    owner   => 'gerrit2',
+    require => [User['gerrit2'], File['/home/gerrit2/review_site']],
+  }
+
+  file { '/home/gerrit2/.ssh':
+    ensure  => directory,
+    owner   => 'gerrit2',
+    mode    => '0700',
+    require => User['gerrit2'],
+  }
+
   file { '/home/gerrit2/review_site/etc':
     ensure  => directory,
     owner   => 'gerrit2',
@@ -493,7 +506,7 @@ class gerrit_config(
                   Mysql::Db['reviewdb'],
                   File['/home/gerrit2/review_site/etc/gerrit.config'],
                   File['/home/gerrit2/review_site/etc/secure.config']],
-    notify    => Exec['gerrit-start'],
+    notify    => Exec['install-core-plugins'],
     unless    => '/usr/bin/test -f /etc/init.d/gerrit',
     logoutput => true,
   }
@@ -512,8 +525,20 @@ class gerrit_config(
                     Mysql::Db['reviewdb'],
                     File['/home/gerrit2/review_site/etc/gerrit.config'],
                     File['/home/gerrit2/review_site/etc/secure.config']],
-    notify      => Exec['gerrit-start'],
+    notify      => Exec['install-core-plugins'],
     onlyif      => '/usr/bin/test -f /etc/init.d/gerrit',
+    logoutput   => true,
+  }
+
+  # Install Core Plugins
+  exec { 'install-core-plugins':
+    user        => 'gerrit2',
+    command     => '/usr/bin/unzip -jo /home/gerrit2/review_site/bin/gerrit.war WEB-INF/plugins/* -d /home/gerrit2/review_site/plugins || true',
+    subscribe   => File['/home/gerrit2/review_site/bin/gerrit.war'],
+    require     => [Package['unzip'],
+                    File['/home/gerrit2/review_site/plugins']],
+    notify      => Exec['gerrit-start'],
+    refreshonly => true,
     logoutput   => true,
   }
 
