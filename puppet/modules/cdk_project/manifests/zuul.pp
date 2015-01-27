@@ -24,7 +24,7 @@ class cdk_project::zuul(
   $zuul_url             = hiera('cdk_project::zuul::zuul_url'           ,''),
   $graphite_url         = hiera('cdk_project::zuul::graphite_url'       ,''),
   $ca_certs_db          = hiera('cdk_project::zuul::ca_certs_db'        ,'/opt/config/cacerts'),
-  $zuul_revision        = hiera('cdk_project::zuul::zuul_revision'      ,'951d8f366ce68238e2988aadd913b2d12656bbb3'),
+  $zuul_revision        = hiera('cdk_project::zuul::zuul_revision'      ,'29d99b7eb1d9bbc42564006d1401f48f4b82b226'),
   $replication_urls     = hiera('cdk_project::zuul::replication_urls'   ,''),
   $sysadmins            = hiera('cdk_project::zuul::sysadmins'          ,[]),
   $gearman_workers      = hiera('cdk_project::zuul::gearman_workers'    ,[]),
