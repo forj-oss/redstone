@@ -247,7 +247,6 @@ class cdk_project::gerrit (
     $::gerrit_config::connect_bugs::commentlink
     )
   $comment_links_data = concat($comment_links_data1, $custom_link_arr)
-  notify{"commentlinks data : ${comment_links_data}":}
   class { '::gerrit_config':
       vhost_name                      => $vhost_name,
       canonicalweburl                 => $canonicalweburl,
