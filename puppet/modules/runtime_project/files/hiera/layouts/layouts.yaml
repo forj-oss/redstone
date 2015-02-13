@@ -21,9 +21,6 @@
 sysadmin_config::swap::swap_file: '/mnt/swapfile'
 sysadmin_config::swap::block_size: '1M'
 
-# nodejs wrap global defaults
-nodejs_wrap::node_env: "%{::maestro::params::node_env}"
-
 # nexus server cofiguration
 nexus::artifact::nexus_server: 'http://nexus.cdkdev.org:8080/nexus'
 
@@ -36,6 +33,24 @@ jimador::discover:
     category: 'dev'
     dname: 'Puppet Dashboard'
     desc: 'View managed nodes'
+    icon: true
+    visible: true
+  uchiwa:
+    tool_email: ''
+    tool_config: "#"
+    tool_url: "%{::uchiwa_url}"
+    category: 'dev'
+    dname: 'Uchiwa'
+    desc: 'Uchiwa is a dashboard for the Sensu monitoring framework'
+    icon: true
+    visible: true
+  rabbitmq:
+    tool_email: ''
+    tool_config: "#"
+    tool_url: "%{::rabbitmq_url}"
+    category: 'dev'
+    dname: 'Rabbitmq'
+    desc: 'Rabbitmq Management Console'
     icon: true
     visible: true
   gerrit:

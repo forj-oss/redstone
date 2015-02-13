@@ -28,7 +28,6 @@ classes:
   - maestro::backup::manage_backup
   - maestro::app::tool_status
   - sysadmin_config::manage_servers
-  - sensu_config::sensuclient
 
 #Jenkins tool
 cdk_project::jenkins::vhost_name:               "%{::maestro::node_vhost_lookup::vname}"
@@ -67,14 +66,14 @@ cdk_project::zuul::ca_certs_db:       '/opt/config/cacerts'
 cdk_project::zuul::url_pattern:       ''
 cdk_project::zuul::graphite_url:      ''
 cdk_project::zuul::zuul_url:          "http://%{::maestro::node_vhost_lookup::vname}/p"
-cdk_project::zuul::zuul_revision:     '2de0c2a37a8d52a09d1375e374deeec52fea38bf'
+cdk_project::zuul::zuul_revision:     '29d99b7eb1d9bbc42564006d1401f48f4b82b226'
 cdk_project::zuul::replication_urls:  ''
 cdk_project::zuul::sysadmins:         ''
 cdk_project::zuul::gearman_workers:   ''
 
 # backup tool
 maestro::backup::set_app_backup:
-  jenkins: 
+  jenkins:
     app_location:     '/var/lib/jenkins'
     db_name:          ''
     db_backup_tool:   ''

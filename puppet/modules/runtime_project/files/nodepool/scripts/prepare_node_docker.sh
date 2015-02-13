@@ -32,6 +32,9 @@
 [ ! -z $NODEPOOL_REVIEW_SERVER ] && REVIEW_SERVER=$NODEPOOL_REVIEW_SERVER
 [ ! -z $NODEPOOL_SETUP_SLAVE ] && SETUP_SLAVE=$NODEPOOL_SETUP_SLAVE
 [ ! -z $NODEPOOL_SSH_KEY ] && PUBLIC_SSH_KEY=$NODEPOOL_SSH_KEY
+[ ! -z $NODEPOOL_DOCKER_EMAIL ] && DOCKER_EMAIL=$NODEPOOL_DOCKER_EMAIL
+[ ! -z $NODEPOOL_DOCKER_USER ] && DOCKER_USER=$NODEPOOL_DOCKER_USER
+[ ! -z $NODEPOOL_DOCKER_PASS ] && DOCKER_PASS=$NODEPOOL_DOCKER_PASS
 
 [ -z $PROJECTS_YAML ] && echo "INFO: using forj-config project for projects.yaml"
 export PREPARE_HOSTNAME=${PREPARE_HOSTNAME:-node-test}
@@ -43,6 +46,9 @@ export SCRIPT_TEMP=$(mktemp -d)
 export PUPPET_VERSION=${PUPPET_VERSION:-'2'}
 export PUBLIC_SSH_KEY=${PUBLIC_SSH_KEY:-''}
 export CURRENT_GROUP=$(grep $(id -g) /etc/group|awk -F: '{print $1}')
+export DOCKER_EMAIL=${DOCKER_EMAIL:-''}
+export DOCKER_USER=${DOCKER_USER:-''}
+export DOCKER_PASS=${DOCKER_PASS:-''}
 
 SETUP_SLAVE=${SETUP_SLAVE:-false}
 SUDO=${SUDO:-true}
@@ -144,6 +150,33 @@ function DOCKER_BUILD {
   fi
   cd "${_CWD}"
 }
+
+#
+# docker publish 
+# <repo name>
+function DOCKER_PUBLISH {
+    [ -z "${1}" ] && ERROR_EXIT  ${LINENO} "DOCKER_PUBLISH requires repo name as argument." 2
+    [ -z "${DOCKER_EMAIL}" ] && ERROR_EXIT  ${LINENO} "DOCKER_PUBLISH requires NODEPOOL_DOCKER_EMAIL set." 2
+    [ -z "${DOCKER_USER}" ] && ERROR_EXIT  ${LINENO} "DOCKER_PUBLISH requires NODEPOOL_DOCKER_USER set." 2
+    [ -z "${DOCKER_PASS}" ] && ERROR_EXIT  ${LINENO} "DOCKER_PUBLISH requires NODEPOOL_DOCKER_PASS set." 2
+    DOCKER_REPO=$1
+    if ! sg docker -c "docker login --email='${DOCKER_EMAIL}' --password='${DOCKER_PASS}' --username='${DOCKER_USER}'" ; then
+        ERROR_EXIT ${LINENO} "DOCKER_PUBLISH unable to login" 2
+    fi
+
+    # attempt publish up to 5 times
+    tries=0
+    while [ $tries -le "5" ]
+    do
+        tries=$(($tries+1))
+        if sg docker -c "docker push ${DOCKER_REPO}" ; then
+            break      # skip publish completed
+        else
+            echo "Warning failed to publish trying again. ${tries}"
+        fi
+    done
+}
+
 #
 # setup the nameservers configured by our provider
 #
@@ -391,6 +424,13 @@ DOCKER_BARE_TRUSTY
 DOCKER_BUILD Dockerfile.precise forj/ubuntu:precise
 DOCKER_BUILD Dockerfile.trusty forj/ubuntu:trusty
 #TODO: create forj/centos:6.5
+
+# publish repo
+if [ ! "${DOCKER_USER}" = "" ] ; then
+    DOCKER_PUBLISH forj/ubuntu
+else
+    echo "Skiping docker push, no docker creds specified...."
+fi
 
 # setup beaker
 SETUP_BEAKER

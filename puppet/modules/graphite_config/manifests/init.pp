@@ -26,16 +26,18 @@ class graphite_config(
   $whisper_revision = 'master',
   $statsd_revision = 'master',
 ) {
-  $packages = [ 'python-django',
-                'python-django-tagging',
-                'python-cairo',
-                'nodejs' ]
 
+  require nodejs_wrap
   include apache
   include pip::python2
 
+  $packages = [ 'python-django',
+                'python-django-tagging',
+                'python-cairo' ]
+
   package { $packages:
-    ensure => present,
+    ensure  => present,
+    require => Package['nodejs'],
   }
 
   vcsrepo { '/opt/graphite-web':
@@ -57,10 +59,10 @@ class graphite_config(
   }
 
   exec {'Install django 1.4':
-    command     => 'pip install django==1.4',
-    path        => '/usr/local/bin:/usr/bin:/bin',
-    require     => Exec['install_graphite_web'],
-    onlyif      => 'django-admin --version | grep -v 1.4',
+    command => 'pip install django==1.4',
+    path    => '/usr/local/bin:/usr/bin:/bin',
+    require => Exec['install_graphite_web'],
+    onlyif  => 'django-admin --version | grep -v 1.4',
   }
 
   vcsrepo { '/opt/carbon':

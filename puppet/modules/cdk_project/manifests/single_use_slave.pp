@@ -52,13 +52,13 @@ class cdk_project::single_use_slave (
       ],
   }
   class { 'jenkins_config::slave':
-    ssh_key         => $ssh_key,
-    python3         => $python3,
-    sudo            => $sudo,
-    bare            => $bare,
-    user            => $user,
-    include_pypy    => $include_pypy,
-    do_fortify      => $do_fortify,
+    ssh_key      => $ssh_key,
+    python3      => $python3,
+    sudo         => $sudo,
+    bare         => $bare,
+    user         => $user,
+    include_pypy => $include_pypy,
+    do_fortify   => $do_fortify,
   }
 
 }

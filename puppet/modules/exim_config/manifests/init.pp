@@ -14,7 +14,7 @@
 # under the License.
 #
 class exim_config(
-  $mailman_domains    = hiera('exim_config::mailman_domains',[]),
+  $mailman_domains    = hiera_array('exim_config::mailman_domains',[]),
   $queue_interval     = hiera('exim_config::queue_interval','30m'),
   $queue_run_max      = hiera('exim_config::queue_run_max','5'),
   $queue_smtp_domains = hiera('exim_config::queue_smtp_domains',''),
@@ -25,13 +25,12 @@ class exim_config(
   $smtp_password      = hiera('exim_config::smtp_password',''),
   $smtp_auth_driver   = hiera('exim_config::smtp_auth_driver','plaintext'),
   $smtp_public_name   = hiera('exim_config::smtp_public_name','LOGIN'),
-  $relay_from_hosts   = hiera('exim_config::relay_from_hosts',['127.0.0.1']),
-  $sysadmin           = hiera('exim_config::sysadmin',[]),
+  $relay_from_hosts   = hiera_array('exim_config::relay_from_hosts',['127.0.0.1']),
+  $sysadmin           = hiera_array('exim_config::sysadmin',[]),
 ) {
 #Important: if you specify a relay host you need to make sure that port 25 is open.
 
   include exim_config::params
-  include exim_config::utils
 
   package { $::exim_config::params::package:
     ensure => present,
@@ -80,8 +79,7 @@ class exim_config(
     mode    => '0444',
     owner   => 'root',
     replace => true,
-    require => [Package[$::exim_config::params::package],
-                Class['::exim_config::utils']],
+    require => Package[$::exim_config::params::package],
   }
 
   file { '/etc/aliases':

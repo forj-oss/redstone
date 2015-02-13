@@ -13,11 +13,11 @@ _NEW_PROJECT_NAME=$1
 _NEW_GROUP_NAME=$_NEW_PROJECT_NAME #$2
 _NEW_PROJECT_DESCRIPTION="description for $_NEW_PROJECT_NAME project" #$3
 _GIT_USER="<%= scope.lookupvar("::runtime_project::params::gerrit_user") %>" #"forjio"
-_GIT_USER_NAME="<%= scope.lookupvar("::runtime_project::params::gerrit_username") %>" #"Forj Configuration User" 
-_GIT_USER_EMAIL="<%= scope.lookupvar("::runtime_project::params::gerrit_useremail") %>" #"forjio@localhost.org" 
-_GIT_PROJECT="<%= scope.lookupvar("::runtime_project::params::config_project") %>" #"forj-config" 
-_REVIEW_SERVER="<%= scope.lookupvar("::runtime_gerrit_ip") %>" #"15.185.244.212" 
-_GIT_SSH_CONFIG="<%= scope.lookupvar("::runtime_project::params::gerrit_config_dir") %>/$_GIT_USER.config" #"/opt/config/cacerts/ssh_keys/config/forjio.config" 
+_GIT_USER_NAME="<%= scope.lookupvar("::runtime_project::params::gerrit_username") %>" #"Forj Configuration User"
+_GIT_USER_EMAIL="<%= scope.lookupvar("::runtime_project::params::gerrit_useremail") %>" #"forjio@localhost.org"
+_GIT_PROJECT="<%= scope.lookupvar("::runtime_project::params::config_project") %>" #"forj-config"
+_REVIEW_SERVER="<%= scope.lookupvar("::runtime_gerrit_ip") %>" #"15.185.244.212"
+_GIT_SSH_CONFIG="<%= scope.lookupvar("::runtime_project::params::gerrit_config_dir") %>/$_GIT_USER.config" #"/opt/config/cacerts/ssh_keys/config/forjio.config"
 _SSH_CMD="<%= scope.lookupvar("::runtime_project::params::ssh_cmd") %> -oStrictHostKeyChecking=no -i <%= scope.lookupvar("::runtime_project::params::gerrit_pem") %> -p <%= scope.lookupvar("::runtime_project::params::gerrit_port") %> $_GIT_USER@$_REVIEW_SERVER"
 #"/usr/bin/ssh -oStrictHostKeyChecking=no -i /opt/config/cacerts/ssh_keys/forjio -p 29418 $_GIT_USER@$_REVIEW_SERVER"
 _WORKSPACE="<%= scope.lookupvar("::runtime_project::params::git_home") %>/workspace/$$"
@@ -67,8 +67,8 @@ fi
 
 echo 'creating files...'
 echo "[access \"refs/heads/*\"]
-        label-Approved = +0..+1 group $_NEW_GROUP_NAME-core
         label-Code-Review = -2..+2 group $_NEW_GROUP_NAME-core
+        label-Workflow = +0..+1 group $_NEW_GROUP_NAME-core
 [access \"refs/tags/*\"]
         create = group $_NEW_GROUP_NAME-core
         pushTag = group $_NEW_GROUP_NAME-core

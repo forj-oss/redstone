@@ -33,6 +33,7 @@
              CustomLog ${APACHE_LOG_DIR}/<%= scope.lookupvar("::jenkins_config::master::vhost_name") %>-ssl-access.log combined
 
              SSLEngine on
+             SSLProtocol all -SSLv2 -SSLv3
 
              SSLCertificateFile      <%= scope.lookupvar("::jenkins_config::master::ssl_cert_file") %>
              SSLCertificateKeyFile   <%= scope.lookupvar("::jenkins_config::master::ssl_key_file") %>

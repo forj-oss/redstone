@@ -35,6 +35,7 @@ class cdk_project::nodepool(
   $tripleo_project                  = hiera('cdk_project::nodepool::tripleo_project'                  , ''),
   $image_log_document_root          = hiera('cdk_project::nodepool::image_log_document_root'          , '/var/log/nodepool/image'),
   $enable_image_log_via_http        = hiera('cdk_project::nodepool::image_log_via_http'               , false),
+  $environment                      = hiera_hash('cdk_project::nodepool::environment'                 , {}),
 ) {
 #  class { 'openstack_project::server':
 #    sysadmins                 => $sysadmins,
@@ -49,6 +50,7 @@ class cdk_project::nodepool(
     statsd_host               => $statsd_host,
     image_log_document_root   => $image_log_document_root,
     enable_image_log_via_http => $enable_image_log_via_http,
+    environment               => $environment,
   }
 
   file { '/etc/nodepool/nodepool.yaml':

@@ -27,10 +27,9 @@ classes:
   - cdk_project::gerrit
   - maestro::app::tool_status
   - sysadmin_config::manage_servers
-  - sensu_config::sensuclient
 
 # use pind version for jeepyb on all servers
-jeepyb_config::jeepyb_version: '3c9a851fa93518bde584a75f6dd715b54f878e72'
+jeepyb_config::jeepyb_version: 'b12ab5feacc56110d45b24f1f37db0d0abcf354e'
 
 # Gerrit tool
 cdk_project::gerrit::vhost_name:                       "%{::maestro::node_vhost_lookup::vname}" #$gerrit_vhost
@@ -66,7 +65,7 @@ cdk_project::gerrit::httpd_acceptorthreads:            ''
 cdk_project::gerrit::httpd_minthreads:                 ''
 cdk_project::gerrit::httpd_maxthreads:                 ''
 cdk_project::gerrit::httpd_maxwait:                    '5000min'
-cdk_project::gerrit::war:                              'http://tarballs.openstack.org/ci/gerrit-2.4.4-14-gab7f4c1.war'
+cdk_project::gerrit::war:                              'http://tarballs.openstack.org/ci/gerrit/gerrit-v2.8.4.15.6dc8444.war'
 cdk_project::gerrit::contactstore:                     false
 cdk_project::gerrit::contactstore_appsec:              ''
 cdk_project::gerrit::contactstore_pubkey:              ''
@@ -75,12 +74,13 @@ cdk_project::gerrit::script_user:                      'gerrit2'
 cdk_project::gerrit::script_key_file:                  '/home/gerrit2/.ssh/gerrit2'
 cdk_project::gerrit::script_logging_conf:              '/home/gerrit2/.sync_logging.conf'
 cdk_project::gerrit::projects_file:                    'review.projects.yaml.erb'
+cdk_project::gerrit::projects_config:                  'review.projects.ini.erb'
 cdk_project::gerrit::github_username:                  ''  # "%{::domain}-gerrit"
 cdk_project::gerrit::github_oauth_token:               ''
 cdk_project::gerrit::github_project_username:          ''
 cdk_project::gerrit::github_project_password:          ''
-cdk_project::gerrit::mysql_password:                   'changeme'
-cdk_project::gerrit::mysql_root_password:              'changeme'
+cdk_project::gerrit::mysql_password:                   "%{hiera('mysql_password')}"
+cdk_project::gerrit::mysql_root_password:              "%{hiera('mysql_root_password')}"
 cdk_project::gerrit::trivial_rebase_role_id:           "trivial-rebase@review.%{::domain}"
 #TODO needs autogeneration at some point
 cdk_project::gerrit::email_private_key:                'FU7D198KY5xEx55/+YA1piHcfhwy/fo8sZk='
