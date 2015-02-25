@@ -425,6 +425,7 @@ class cdk_project::gerrit (
     group   => 'root',
     mode    => '0444',
     source  => $logo,
+    replace => true,
     require => Class['::gerrit_config'],
     notify  => Exec['reload_gerrit_header'],
   }
