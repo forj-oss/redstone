@@ -110,8 +110,9 @@ class gerrit_config(
   $ssh_rsa_pubkey_contents         = '', # If left empty puppet will not create file.
   $ssh_project_rsa_key_contents    = '', # If left empty will not create file.
   $ssh_project_rsa_pubkey_contents = '', # If left empty will not create file.
-  $gerrit_auth_type                = 'OPENID_SSO',
   $gerrit_contributor_agreement    = true,
+
+  $gerrit_auth_type                = 'OPENID_SSO',
   $openidssourl                    = 'https://login.launchpad.net/+openid',
   $ldap_server                     = '',
   $ldap_account_base               = '',
@@ -122,6 +123,11 @@ class gerrit_config(
   $ldap_sslverify                  = true,
   $ldap_ssh_account_name           = '',
   $ldap_accountfullname            = '',
+  $ldap_groupscope                 = '',
+  $ldap_groupbase                  = '',
+  $ldap_group_pattern              = '',
+  $ldap_group_member_pattern       = '',
+
   $email                           = '',
   $smtpserver                      = hiera('gerrit_config::smtpserver', 'localhost'),
   $sendemail_from                  = hiera('gerrit_config::sendemail_from', 'MIXED'),

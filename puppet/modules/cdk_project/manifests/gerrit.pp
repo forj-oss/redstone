@@ -95,7 +95,25 @@ class cdk_project::gerrit (
   $buglinks_enabled                 = hiera('cdk_project::gerrit::buglinks_enabled'                 ,true),
   $replicate_local                  = hiera('cdk_project::gerrit::replicate_local'                  ,true),
   $replication_targets              = hiera('cdk_project::gerrit::replication'                      ,''),
+
+  # gerrit authorization mehtod LDAP or OPENID
+  $auth_type                 = hiera('cdk_project::gerrit::auth_type', 'OPENID_SSO'),
   $openidssourl                     = hiera('cdk_project::gerrit::openidssourl'                     ,'https://login.launchpad.net/+openid'), # TODO : fix 'https://www.google.com/accounts/o8/id?id='
+  $ldap_server                      = hiera('cdk_project::gerrit::ldap_server', ''),
+  $ldap_account_base                = hiera('cdk_project::gerrit::ldap_account_base', ''),
+  $ldap_username                    = hiera('cdk_project::gerrit::ldap_username', ''),
+  $ldap_password                    = hiera('cdk_project::gerrit::ldap_password', ''),
+  $ldap_account_pattern             = hiera('cdk_project::gerrit::ldap_account_pattern', ''),
+  $ldap_account_email_address       = hiera('cdk_project::gerrit::ldap_account_emailaddress', ''),
+  $ldap_account_fullname            = hiera('cdk_project::gerrit::ldap_account_fullname', ''),
+  $ldap_sslverify                   = hiera('cdk_project::gerrit::ldap_sslverify', false),
+  $ldap_ssh_account_name            = hiera('cdk_project::gerrit::ldap_ssh_account_name', ''),
+
+  $ldap_groupscope                  = hiera('cdk_project::gerrit::ldap_groupscope', ''),
+  $ldap_groupbase                   = hiera('cdk_project::gerrit::ldap_groupbase', ''),
+  $ldap_group_pattern               = hiera('cdk_project::gerrit::ldap_group_pattern', ''),
+  $ldap_group_member_pattern        = hiera('cdk_project::gerrit::ldap_group_member_pattern', ''),
+
   $require_contact_information      = hiera('cdk_project::gerrit::require_contact_information'      ,'N'), #This parameter is to be able to commit to a project with a contribution agreement enabled.
   $custom_link                      = hiera_hash('cdk_project::gerrit::custom_link',undef),
   $first_account_classes            = hiera_array('cdk_projects::gerrit::first_account_classes',['gerrit_config::firstopenidadmin']), # if we enable ldap we can add admin classes here.
@@ -120,7 +138,7 @@ class cdk_project::gerrit (
   if !defined(Class['pip::python2']) {
     include pip::python2
   }
-  # this configuration should be different if we are registered with a dns
+  # this configuration should be differegerrit_confignt if we are registered with a dns
   # name.   For now we use ipv4, otherwise we would use fqdn
 
   # system config
@@ -270,7 +288,25 @@ class cdk_project::gerrit (
       ssh_project_rsa_key_contents    => $ssh_project_rsa_key_contents,
       ssh_project_rsa_pubkey_contents => $ssh_project_rsa_pubkey_contents,
       email                           => $email,
+
       openidssourl                    => $openidssourl,
+      gerrit_auth_type                => $auth_type,
+      ldap_server                     => $ldap_server,
+      ldap_account_base               => $ldap_account_base,
+      ldap_username                   => $ldap_username,
+      ldap_password                   => $ldap_password,
+      ldap_account_pattern            => $ldap_account_pattern,
+      ldap_account_email_address      => $ldap_account_email_address,
+      ldap_sslverify                  => $ldap_sslverify,
+      ldap_ssh_account_name           => $ldap_ssh_account_name,
+      ldap_accountfullname            => $ldap_account_fullname,
+
+      ldap_groupscope                 => $ldap_groupscope,
+      ldap_groupbase                  => $ldap_groupbase,
+      ldap_group_pattern              => $ldap_group_pattern,
+      ldap_group_member_pattern       => $ldap_group_member_pattern,
+
+
       database_poollimit              => $database_poollimit,
       container_heaplimit             => $container_heaplimit,
       core_packedgitopenfiles         => $core_packedgitopenfiles,

@@ -101,7 +101,25 @@ cdk_project::gerrit::demo_enabled:                     true
 cdk_project::gerrit::buglinks_enabled:                 true
 cdk_project::gerrit::replicate_local:                  ''
 cdk_project::gerrit::replication:                      ''
+
+#LDAP OPENID Configuration values
+cdk_project::gerrit::auth_type:                        'OPENID_SSO' # or LDAP
 cdk_project::gerrit::openidssourl:                     'https://login.launchpad.net/+openid'
+#cdk_project::gerrit::ldap_server:                      '' # ldaps://example.com
+#cdk_project::gerrit::ldap_account_base:                '' # ou =
+#cdk_project::gerrit::ldap_username:                    ''
+#cdk_project::gerrit::ldap_password:                    ''
+#cdk_project::gerrit::ldap_account_pattern:             '' # (&(objectClass=person)(uid=${username}))'
+#cdk_project::gerrit::ldap_account_emailaddress:        ''
+#cdk_project::gerrit::ldap_account_fullname:            ''
+#cdk_project::gerrit::ldap_sslverify:                   ''
+#cdk_project::gerrit::ldap_ssh_account_name:            ''
+
+#cdk_project::gerrit::ldap_groupscope:                  '' # subtree
+#cdk_project::gerrit::ldap_groupbase:                   ''
+#cdk_project::gerrit::ldap_group_pattern:               '' # (&(objectClass=groupOfNames)(cn=${groupname}))
+#cdk_project::gerrit::ldap_group_member_pattern:        '' # (member=${dn})
+
 cdk_project::gerrit::require_contact_information:      'N'
 cdk_project::gerrit::logo:                             'puppet:///modules/openstack_project/openstack.png'
 cdk_projects::gerrit::first_account_classes:

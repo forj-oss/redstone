@@ -41,13 +41,20 @@
 [ldap]
 	server = <%= ldap_server %>
 	accountBase = <%= ldap_account_base %>
-	<% if ldap_username -%>username = <%= ldap_username %><%end%>
+
 	<% if ldap_password -%>password = <%= ldap_password %><%end%>
 	<% if ldap_accountfullname -%>accountFullName = <%= ldap_accountfullname %><%end%>
 	accountPattern = <%= ldap_account_pattern %>
 	accountEmailAddress = <%= ldap_account_email_address %>
 	sslVerify = <%= ldap_sslverify %>
 	<% if @ldap_ssh_account_name -%>accountSshUserName = <%= ldap_ssh_account_name %><%end%>
+
+	<% if ldap_groupscope -%>groupScope = <%= ldap_groupscope %><%end%>
+	<% if ldap_groupbase -%>groupBase = <%= ldap_groupbase %><%end%>
+	<% if ldap_group_pattern -%>groupPattern = <%= ldap_group_pattern %><%end%>
+	<% if ldap_group_member_pattern -%>groupMemberPattern = <%= ldap_group_member_pattern %><%end%>
+
+
 <% end %>
 [sendemail]
 	smtpServer = <%= smtpserver %>
