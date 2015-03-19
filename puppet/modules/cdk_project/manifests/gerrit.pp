@@ -98,6 +98,7 @@ class cdk_project::gerrit (
   $openidssourl                     = hiera('cdk_project::gerrit::openidssourl'                     ,'https://login.launchpad.net/+openid'), # TODO : fix 'https://www.google.com/accounts/o8/id?id='
   $require_contact_information      = hiera('cdk_project::gerrit::require_contact_information'      ,'N'), #This parameter is to be able to commit to a project with a contribution agreement enabled.
   $custom_link                      = hiera_hash('cdk_project::gerrit::custom_link',undef),
+  $first_account_classes            = hiera_array('cdk_projects::gerrit::first_account_classes',['gerrit_config::firstopenidadmin']), # if we enable ldap we can add admin classes here.
 ) {
   if $replication_targets == ''
   {
@@ -190,6 +191,7 @@ class cdk_project::gerrit (
           demo_enabled                => $demo_enabled,
           buglinks_enabled            => $buglinks_enabled,
           require_contact_information => $require_contact_information,
+          first_account_classes       => $first_account_classes,
           require                     => Class['::gerrit_config'],
       }
 

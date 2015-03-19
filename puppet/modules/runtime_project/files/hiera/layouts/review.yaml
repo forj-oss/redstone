@@ -104,10 +104,12 @@ cdk_project::gerrit::replication:                      ''
 cdk_project::gerrit::openidssourl:                     'https://login.launchpad.net/+openid'
 cdk_project::gerrit::require_contact_information:      'N'
 cdk_project::gerrit::logo:                             'puppet:///modules/openstack_project/openstack.png'
-
+cdk_projects::gerrit::first_account_classes:
+  - 'gerrit_config::firstopenidadmin'
+# - 'gerrit_config::firstldapadmin'   # uncomment when you are enabling ldap auth.
 # backup tool
 maestro::backup::set_app_backup:
-  gerrit: 
+  gerrit:
     app_location:     '/home/gerrit2'
     db_name:          'reviewdb'
     db_backup_tool:   'mysqldump'

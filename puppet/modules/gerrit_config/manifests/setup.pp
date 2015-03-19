@@ -24,6 +24,7 @@ class gerrit_config::setup(
     $demo_enabled                   = false,
     $buglinks_enabled               = true,
     $require_contact_information    = 'N',
+    $first_account_classes    = ['gerrit_config::firstopenidadmin'],
 ) {
 
   include gerrit_config::params
@@ -36,7 +37,7 @@ class gerrit_config::setup(
         gerrit_id => $gerrit_config::params::gerrit_user,
   } ->
   # make the first openid user an adminsitrator
-  class {'gerrit_config::firstopenidadmin':} ->
+  class {$first_account_classes:} ->
   class {'gerrit_config::adddemoids':
         enabled => $demo_enabled,
   } ->
