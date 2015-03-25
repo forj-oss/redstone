@@ -14,7 +14,7 @@
           #!/bin/bash -xe
           mkdir -p $WORKSPACE/.test
           cd $WORKSPACE/.test
-          [ -d zuul ] || git clone https://review.openstack.org/p/openstack-infra/zuul --depth 1
+          [ -d zuul ] || git clone https://git.openstack.org/openstack-infra/zuul  --depth 1
           cp /etc/zuul/openstack_functions.py $WORKSPACE/modules/runtime_project/files/zuul/config/production/openstack_functions.py
           cd zuul
           #Per issues with the proxy we need to send python package (sphinxcontrib-blockdiag>=0.5.5) at the end of the installation.
