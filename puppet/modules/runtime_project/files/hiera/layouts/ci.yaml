@@ -75,7 +75,7 @@ cdk_project::zuul::gearman_workers:   ''
 maestro::backup::set_app_backup:
   jenkins:
     app_location:     '/var/lib/jenkins'
-    exclude:          '/var/lib/jenkins/jobs'
+    exclude:          '/var/lib/jenkins/jobs/*/workspace'
     db_name:          ''
     db_backup_tool:   ''
     db_user:          ''
