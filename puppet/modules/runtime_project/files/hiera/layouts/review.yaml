@@ -129,6 +129,7 @@ cdk_projects::gerrit::first_account_classes:
 maestro::backup::set_app_backup:
   gerrit:
     app_location:     '/home/gerrit2'
+    exclude:          ''
     db_name:          'reviewdb'
     db_backup_tool:   'mysqldump'
     db_user:          'gerrit2'
