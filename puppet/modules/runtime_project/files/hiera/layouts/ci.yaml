@@ -30,6 +30,9 @@ classes:
   - sysadmin_config::manage_servers
 
 #Jenkins tool
+jenkins_config::master::install_method:    'dpkg'
+jenkins_config::master::jenkins_dpkg_repo: 'http://pkg.jenkins-ci.org/debian-stable/binary/jenkins_1.565.3_all.deb'
+
 cdk_project::jenkins::vhost_name:               "%{::maestro::node_vhost_lookup::vname}"
 cdk_project::jenkins::jenkins_jobs_password:    ''
 cdk_project::jenkins::jenkins_jobs_username:    'gerrig'

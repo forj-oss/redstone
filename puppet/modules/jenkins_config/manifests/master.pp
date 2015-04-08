@@ -30,6 +30,7 @@ class jenkins_config::master(
   $jenkins_ssh_public_key = '',
   $jenkins_version = hiera('jenkins_config::master::jenkins_version',present),
   $jenkins_dpkg_repo = hiera('jenkins_config::master::jenkins_dpkg_repo','stable'), # should be a url, latest, or stable.
+  $install_method = hiera('jenkins_config::master::install_method', 'apt'), # use apt or dpkg to install.
 ) {
   include pip::python2
   include apt
@@ -62,22 +63,51 @@ class jenkins_config::master(
     undef: { $jenkins_repo = 'http://pkg.jenkins-ci.org/debian-stable'  }
     default:            { $jenkins_repo = $jenkins_dpkg_repo } # it's not empty, stable, latest, so it must be a url...
   }
-  #This key is at http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key
-  apt::key { 'jenkins':
-    key        => 'D50582E6',
-    key_source => "${jenkins_repo}/jenkins-ci.org.key",
-    require    => Package['wget'],
-  }
-
-  apt::source { 'jenkins':
-    location    => $jenkins_repo,
-    release     => 'binary/',
-    repos       => '',
-    require     => [
-      Apt::Key['jenkins'],
-      Package['openjdk-7-jre-headless'],
-    ],
-    include_src => false,
+  case $install_method {
+    /^apt$/: {
+      #This key is at http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key
+      apt::key { 'jenkins':
+        key        => 'D50582E6',
+        key_source => "${jenkins_repo}/jenkins-ci.org.key",
+        require    => Package['wget'],
+      }
+      apt::source { 'jenkins':
+        location    => $jenkins_repo,
+        release     => 'binary/',
+        repos       => '',
+        require     => [
+          Apt::Key['jenkins'],
+          Package['openjdk-7-jre-headless'],
+        ],
+        include_src => false,
+      }
+      exec { 'update apt cache':
+        subscribe   => File['/etc/apt/sources.list.d/jenkins.list'],
+        refreshonly => true,
+        path        => '/bin:/usr/bin',
+        command     => 'apt-get update',
+      }
+      package { 'jenkins':
+        ensure  => $jenkins_version,
+        require => Apt::Source['jenkins'],
+      }
+    }
+    /^dpkg$/: {
+      exec { 'jenkins_dpkg_file':
+        path    => '/bin:/usr/bin',
+        command => "curl -s -k -L ${jenkins_repo} > /tmp/jenkins-download.deb",
+        creates => '/tmp/jenkins-download.deb',
+      }
+      package { 'jenkins':
+        ensure   => $jenkins_version,
+        provider => dpkg,
+        source   => '/tmp/jenkins-download.deb',
+        require  => Exec['jenkins_dpkg_file'],
+      }
+    }
+    default: {
+      fail("install_method is ${install_method}, invalid.  use apt or dpkg.")
+    }
   }
 
   apache::vhost { "jenkins-${vhost_name}":
@@ -148,19 +178,7 @@ class jenkins_config::master(
     owner   => 'jenkins',
     group   => 'nogroup',
     mode    => '0700',
-    require => Apt::Source['jenkins'],
-  }
-
-  package { 'jenkins':
-    ensure  => $jenkins_version,
-    require => Apt::Source['jenkins'],
-  }
-
-  exec { 'update apt cache':
-    subscribe   => File['/etc/apt/sources.list.d/jenkins.list'],
-    refreshonly => true,
-    path        => '/bin:/usr/bin',
-    command     => 'apt-get update',
+    require => Package['jenkins'],
   }
 
   file { '/var/lib/jenkins':
@@ -178,14 +196,6 @@ class jenkins_config::master(
     require => File['/var/lib/jenkins'],
   }
 
-  # file { '/var/lib/jenkins/.ssh/id_rsa':
-    # owner   => 'jenkins',
-    # group   => 'nogroup',
-    # mode    => '0600',
-    # content => $jenkins_ssh_private_key,
-    # replace => true,
-    # require => File['/var/lib/jenkins/.ssh/'],
-  # }
   file { '/home/jenkins/.ssh/id_rsa':
     owner   => 'jenkins',
     group   => 'nogroup',
@@ -195,14 +205,6 @@ class jenkins_config::master(
     require => File['/home/jenkins/.ssh/'],
   }
 
-  # file { '/var/lib/jenkins/.ssh/id_rsa.pub':
-    # owner   => 'jenkins',
-    # group   => 'nogroup',
-    # mode    => '0644',
-    # content => $jenkins_ssh_public_key,
-    # replace => true,
-    # require => File['/var/lib/jenkins/.ssh/'],
-  # }
   file { '/home/jenkins/.ssh/id_rsa.pub':
     owner   => 'jenkins',
     group   => 'nogroup',
@@ -211,7 +213,6 @@ class jenkins_config::master(
     replace => true,
     require => File['/home/jenkins/.ssh/'],
   }
-
 
   file { '/var/lib/jenkins/plugins':
     ensure  => directory,
