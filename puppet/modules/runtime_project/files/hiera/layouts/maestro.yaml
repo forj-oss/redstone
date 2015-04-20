@@ -20,6 +20,7 @@
 classes:
   - runtime_project::install
   - sysadmin_config::manage_servers
+  - redstone_passwords
 # - cacerts::custom                  # user story #2189: uncomment this to enable custom cert installation
 
 # custom cert installation, additional steps when uncommenting cacerts::custom
@@ -55,19 +56,19 @@ maestro::dns::global::default_contact: 'admin@%{::erodomain}'
 maestro::dns:
   maestro:
     hostname: 'maestro'
-    type: 'A' 
+    type: 'A'
     node_search: '/maestro.%{::maestro_id}.*/'
   review:
     hostname: 'review'
-    type: 'A' 
+    type: 'A'
     node_search: 'review.%{::maestro_id}'
-  ci: 
+  ci:
     hostname: 'ci'
-    type: 'A' 
+    type: 'A'
     node_search: 'ci.%{::maestro_id}'
   util:
     hostname: 'util'
-    type: 'A' 
+    type: 'A'
     node_search: 'util.%{::maestro_id}'
 
 jimador::documentation:
@@ -131,4 +132,3 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
   - 8080
   - 8139
   - 8140
-

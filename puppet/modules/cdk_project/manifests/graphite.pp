@@ -63,6 +63,18 @@ class cdk_project::graphite (
     }->
     exec { 'statsd-start':
       command     => '/etc/init.d/statsd start',
+    }->
+    file { '/opt/graphite-web/webapp/graphite/settings.py':
+      mode    => '0400',
+      owner   => 'www-data',
+      group   => 'www-data',
+      content => template('graphite_config/settings.py.erb'),
+      replace => true,
+    }->
+    exec { 'graphite_sycndb':
+      command   => 'python ./manage.py syncdb --noinput',
+      cwd       => '/opt/graphite-web/webapp/graphite/',
+      logoutput => true,
     }
   }
 }
