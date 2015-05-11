@@ -124,3 +124,11 @@ puppet::manifestdir: "/opt/config/$environment/git/maestro/puppet/manifests"
 puppet::modulepath: "%{::bp_modulepath}/opt/config/$environment/git/maestro/puppet/modules:%{::extra_modulepath}/opt/config/$environment/git/config/modules:/etc/puppet/modules"
 puppet::puppetmaster: "%{::erosite}.%{::erodomain}"
 puppet::puppetmaster::certname: "%{::erosite}.%{::erodomain}"
+
+# puppet-gardener capability to manage ssl cert verification
+# SSL_VERIFY_PEER is set to false as the default value for deploying to the private cloud, if you're trying to deploy
+# to the public cloud please comment that line and use either way SSL_CERT_DIR or SSL_CERT_FILE values below.
+puppet::agent::environment:
+  - 'SSL_VERIFY_PEER=false'
+  #- 'SSL_CERT_DIR=/path/to/dir'
+  #- 'SSL_CERT_FILE=/path/to/file'
