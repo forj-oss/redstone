@@ -266,7 +266,7 @@ class cdk_project::jenkins (
       logoutput => true,
       require   => Service['jenkins'],
     }
-    if $manage_jenkins_jobs == true and $::jenkins_user_token != '' {
+    if $manage_jenkins_jobs == true and ($::jenkins_user_token != '' or $jenkins_jobs_password != '') {
       #TODO Remove the below line once the six package installed from the jenkins-job setup.py, this is a fix from the openstack-infra team. note:remove also the patch_six.pp manifest
       include jenkins_config::patch_six
 
