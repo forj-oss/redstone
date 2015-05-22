@@ -29,6 +29,6 @@ class redstone_passwords (
   }->
   exec {'redstone_passwords':
     cwd     => "/opt/config/${::environment}/scripts/",
-    command => 'redstone-hiera.sh',
+    command => 'bash ./redstone-hiera.sh',
   }
 }
