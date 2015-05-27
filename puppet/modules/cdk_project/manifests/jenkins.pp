@@ -234,11 +234,12 @@ class cdk_project::jenkins (
       require => Class['jenkins_config::master'],
     }
     file { '/etc/default/jenkins':
-      ensure => present,
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644',
-      source => 'puppet:///modules/cdk_project/jenkins/jenkins.default',
+      ensure  => present,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      source  => 'puppet:///modules/cdk_project/jenkins/jenkins.default',
+      require => Class['jenkins_config::master'],
     }
     # requires $openidssourl
     file { '/var/lib/jenkins/config.xml':
