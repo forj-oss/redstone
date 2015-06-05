@@ -475,6 +475,15 @@ class cdk_project::gerrit (
     require => Class['::gerrit_config'],
   }
 
+  file { '/home/gerrit2/review_site/etc/GerritSiteFooter.html':
+    ensure  => present,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0444',
+    source  => "puppet:///modules/${runtime_module}/gerrit/GerritSiteFooter.html",
+    require => Class['::gerrit_config'],
+  }
+
   exec { 'reload_gerrit_header':
     command     => 'touch /home/gerrit2/review_site/etc/GerritSiteHeader.html',
     path        => 'bin:/usr/bin',
