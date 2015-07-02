@@ -25,7 +25,7 @@ class cdk_project::paste (
   $serveraliases  = hiera('cdk_project::paste::serveraliases'     ,''),
 ) {
   require maestro::node_vhost_lookup
-  include lodgeit
+  include lodgeit_config
   if ($vhost_name != '')
   {
     lodgeit_config::site { $site_name:
@@ -45,7 +45,7 @@ class cdk_project::paste (
   }
 
 
-  lodgeit::site { 'drizzle':
+  lodgeit_config::site { 'drizzle':
     port => '5001',
   }
 }

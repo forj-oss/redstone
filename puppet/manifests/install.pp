@@ -30,4 +30,3 @@ file { "/opt/config/${::settings::environment}/config.json":
 class { 'runtime_project::hiera_setup':
     require => File["/opt/config/${::settings::environment}/config.json"],
 }
-
