@@ -365,6 +365,10 @@ acl_check_rcpt:
 
   # Accept if the source is local SMTP (i.e. not over TCP/IP). We do this by
   # testing for an empty sending host field.
+<% if mailman_domains.length > 0 -%>
+  deny    recipients = <%= mailman_domains.join(":") %>
+          message    = Blocked local recipient
+<% end -%>
 
   accept  hosts = :
           control = dkim_disable_verify
