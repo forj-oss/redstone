@@ -37,10 +37,10 @@ class cdk_project::paste (
     }
   } else {
     lodgeit_config::site { $site_name:
-      port         => '5000',
-      image        => $image_name,
-      image_source => $image_source,
-      serveraliase => $serveraliases,
+      port          => '5000',
+      image         => $image_name,
+      image_source  => $image_source,
+      serveraliases => $serveraliases,
     }
   }
 
