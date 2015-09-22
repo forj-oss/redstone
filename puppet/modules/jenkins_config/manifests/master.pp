@@ -136,7 +136,7 @@ class jenkins_config::master(
       group   => 'root',
       mode    => '0640',
       content => $ssl_cert_file_contents,
-      before  => Apache::Vhost[$vhost_name],
+      before  => Apache::Vhost["jenkins-${vhost_name}"],
     }
   }
 
@@ -147,7 +147,7 @@ class jenkins_config::master(
       mode    => '0640',
       content => $ssl_key_file_contents,
       require => Package['ssl-cert'],
-      before  => Apache::Vhost[$vhost_name],
+      before  => Apache::Vhost["jenkins-${vhost_name}"],
     }
   }
 
@@ -157,7 +157,7 @@ class jenkins_config::master(
       group   => 'root',
       mode    => '0640',
       content => $ssl_chain_file_contents,
-      before  => Apache::Vhost[$vhost_name],
+      before  => Apache::Vhost["jenkins-${vhost_name}"],
     }
   }
 
