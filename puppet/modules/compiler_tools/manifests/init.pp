@@ -33,9 +33,9 @@
 #        }
 #
 class compiler_tools (
-  $install_stackato     = true,
-  $install_cf           = true,
-  $install_hdp          = true,
+  $install_stackato     = false,
+  $install_cf           = false,
+  $install_hdp          = false,
   $install_flake8       = true,
   $install_fortify      = false,
   $install_common       = true,
